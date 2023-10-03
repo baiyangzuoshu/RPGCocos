@@ -33,7 +33,7 @@ export class GameApp extends Component {
         console.log("EnterGame #######");
         // 由其它开发者来接管整个游戏项目的代码编写;
         // SceneManager.Instance.EnterScene("main"); // 如果你把场景当作是ab包的，那么加载不到;
-        SceneManager.Instance.IE_RunScene("main");
+        SceneManager.Instance.IE_RunScene("Main");
         // end
 
         /*

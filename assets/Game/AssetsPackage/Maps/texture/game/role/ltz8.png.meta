@@ -1,0 +1,70 @@
+{
+  "ver": "1.0.26",
+  "importer": "image",
+  "imported": true,
+  "uuid": "2cafea84-ff6b-4a76-9e8b-62cb8ef9701c",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "ltz8": {
+      "ver": "1.0.6",
+      "uuid": "f4a1033f-bfbb-44cb-a9c8-d53d3c14d7ba",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "2cafea84-ff6b-4a76-9e8b-62cb8ef9701c",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -0.5,
+      "offsetY": -3.5,
+      "trimX": 3,
+      "trimY": 9,
+      "width": 545,
+      "height": 757,
+      "rawWidth": 552,
+      "rawHeight": 768,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {},
+      "imported": false,
+      "files": [],
+      "userData": {},
+      "displayName": "",
+      "id": "",
+      "name": ""
+    },
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "2cafea84-ff6b-4a76-9e8b-62cb8ef9701c@6c48a",
+      "displayName": "ltz8",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "2cafea84-ff6b-4a76-9e8b-62cb8ef9701c",
+        "visible": false
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "fixAlphaTransparencyArtifacts": true,
+    "hasAlpha": true,
+    "redirect": "2cafea84-ff6b-4a76-9e8b-62cb8ef9701c@6c48a"
+  }
+}

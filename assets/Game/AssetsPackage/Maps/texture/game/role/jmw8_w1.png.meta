@@ -1,0 +1,70 @@
+{
+  "ver": "1.0.26",
+  "importer": "image",
+  "imported": true,
+  "uuid": "bdb4db59-de05-4442-9a15-c5e5724520ab",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "jmw8_w1": {
+      "ver": "1.0.6",
+      "uuid": "681c4249-005e-4dec-847d-841ec90128c4",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "bdb4db59-de05-4442-9a15-c5e5724520ab",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 0,
+      "offsetY": 1,
+      "trimX": 0,
+      "trimY": 0,
+      "width": 624,
+      "height": 854,
+      "rawWidth": 624,
+      "rawHeight": 856,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {},
+      "imported": false,
+      "files": [],
+      "userData": {},
+      "displayName": "",
+      "id": "",
+      "name": ""
+    },
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "bdb4db59-de05-4442-9a15-c5e5724520ab@6c48a",
+      "displayName": "jmw8_w1",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "bdb4db59-de05-4442-9a15-c5e5724520ab",
+        "visible": false
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "fixAlphaTransparencyArtifacts": true,
+    "hasAlpha": true,
+    "redirect": "bdb4db59-de05-4442-9a15-c5e5724520ab@6c48a"
+  }
+}

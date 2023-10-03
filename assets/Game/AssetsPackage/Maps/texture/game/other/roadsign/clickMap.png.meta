@@ -1,0 +1,70 @@
+{
+  "ver": "1.0.26",
+  "importer": "image",
+  "imported": true,
+  "uuid": "598f60aa-be91-4d10-a52f-f4561020255c",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "clickMap": {
+      "ver": "1.0.6",
+      "uuid": "0d08d384-9d22-44ce-82ce-112f41882b8e",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "598f60aa-be91-4d10-a52f-f4561020255c",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -12.5,
+      "offsetY": -4.5,
+      "trimX": 8,
+      "trimY": 13,
+      "width": 759,
+      "height": 153,
+      "rawWidth": 800,
+      "rawHeight": 170,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {},
+      "imported": false,
+      "files": [],
+      "userData": {},
+      "displayName": "",
+      "id": "",
+      "name": ""
+    },
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "598f60aa-be91-4d10-a52f-f4561020255c@6c48a",
+      "displayName": "clickMap",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "598f60aa-be91-4d10-a52f-f4561020255c",
+        "visible": false
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "fixAlphaTransparencyArtifacts": true,
+    "hasAlpha": true,
+    "redirect": "598f60aa-be91-4d10-a52f-f4561020255c@6c48a"
+  }
+}

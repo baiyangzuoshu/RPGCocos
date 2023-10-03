@@ -1,0 +1,70 @@
+{
+  "ver": "1.0.26",
+  "importer": "image",
+  "imported": true,
+  "uuid": "66b26b43-27d6-466f-bb63-1039b6f7a55f",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "fyn8f_w1": {
+      "ver": "1.0.6",
+      "uuid": "a2144c95-212b-446b-b9da-57d41099b0a0",
+      "importer": "sprite-frame",
+      "rawTextureUuid": "66b26b43-27d6-466f-bb63-1039b6f7a55f",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -0.5,
+      "offsetY": 1.5,
+      "trimX": 2,
+      "trimY": 0,
+      "width": 571,
+      "height": 821,
+      "rawWidth": 576,
+      "rawHeight": 824,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {},
+      "imported": false,
+      "files": [],
+      "userData": {},
+      "displayName": "",
+      "id": "",
+      "name": ""
+    },
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "66b26b43-27d6-466f-bb63-1039b6f7a55f@6c48a",
+      "displayName": "fyn8f_w1",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "repeat",
+        "wrapModeT": "repeat",
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0,
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "66b26b43-27d6-466f-bb63-1039b6f7a55f",
+        "visible": false
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "texture",
+    "fixAlphaTransparencyArtifacts": true,
+    "hasAlpha": true,
+    "redirect": "66b26b43-27d6-466f-bb63-1039b6f7a55f@6c48a"
+  }
+}
