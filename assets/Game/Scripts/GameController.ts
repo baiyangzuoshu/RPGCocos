@@ -1,5 +1,6 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, Prefab, JsonAsset, ImageAsset, Texture2D } from 'cc';
 import { EventManager } from '../../Framework/Scripts/Managers/EventManager';
+import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { SceneManager } from '../../Framework/Scripts/Managers/SceneManager';
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
 import { MapLoadModel } from './3rd/map/base/MapLoadModel';
@@ -19,19 +20,23 @@ export class GameController extends Component {
     }
 
     public Init(): void {
-        EventManager.Instance.AddEventListener(UIEventName.UIEventHome,this.UIEventHome,this);
+        EventManager.Instance.AddEventListener(UIEventName.UILoginSuccessReturn,this.UILoginSuccessReturn,this);
     }
 
-    public UIEventHome(uname:string,udata:any){
-        this.loadAndGotoMap(udata.mapId,udata.enterSpawnId,udata.mapLoadModel);
+    private async UILoginSuccessReturn(uname:string,udata:any){
+        await SceneManager.Instance.IE_RunScene("Main");
+        await ResManager.Instance.IE_GetAsset(BundleName.GUI,UIView.UIGame,Prefab);
+
+        await this.loadAndGotoMap(udata.mapId,udata.enterSpawnId,udata.mapLoadModel);
+
+        //删除加载界面
+        UIManager.Instance.DestroyUIView(UIView.UILoading);
     }
 
     public async loadAndGotoMap(mapId:string,enterSpawnId:number,mapLoadModel:MapLoadModel=MapLoadModel.single){
-        
-        await SceneManager.Instance.IE_RunScene("Main");
-        await UIManager.Instance.IE_ShowUIView(UIView.UILoading,null,BundleName.GUI);
-        UIManager.Instance.DestroyUIView(UIView.UILoading);
-        UIManager.Instance.DestroyUIView(UIView.UILogin);
+        //加载地图
+        await ResManager.Instance.IE_LoadBundleAndAllAssets(BundleName.MapData,JsonAsset);
+        await ResManager.Instance.IE_LoadBundleAndAllAssets(BundleName.MapBg,Texture2D);
     }
 }
 

@@ -24,15 +24,22 @@ export class UILoginUICtrl extends UIComponent {
         console.log("OnClickLogin");
         console.log("account:", this.accountEditBox.string);
         console.log("password:", this.passwordEditBox.string);
+        //显示加载界面
+        await UIManager.Instance.IE_ShowUIView(UIView.UILoading,null,BundleName.GUI);
+        UIManager.Instance.DestroyUIView(UIView.UILogin);
 
-        EventManager.Instance.Emit(UIEventName.UIEventHome, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
+        EventManager.Instance.Emit(UIEventName.UILoginSuccessReturn, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
     }
 
     private async OnClickRegist() {
         console.log("OnClickRegist");
         console.log("account:", this.accountEditBox.string);
         console.log("password:", this.passwordEditBox.string);
-        EventManager.Instance.Emit(UIEventName.UIEventHome, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
+        //显示加载界面
+        await UIManager.Instance.IE_ShowUIView(UIView.UILoading,null,BundleName.GUI);
+        UIManager.Instance.DestroyUIView(UIView.UILogin);
+        
+        EventManager.Instance.Emit(UIEventName.UILoginSuccessReturn, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
     }
 
     update(deltaTime: number) {
