@@ -5,5 +5,8 @@
   "uuid": "d2dd3437-24f5-4637-9493-3108b578a690",
   "files": [],
   "subMetas": {},
-  "userData": {}
+  "userData": {
+    "isBundle": true,
+    "bundleName": "Map"
+  }
 }

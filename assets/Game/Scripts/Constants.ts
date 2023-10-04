@@ -1,7 +1,8 @@
 export enum BundleName {
     GUI="GUI",
     MapData="MapData",
-    MapBg="MapBg"
+    MapBg="MapBg",
+    Map="Map",
 }
 
 export enum UIView {
