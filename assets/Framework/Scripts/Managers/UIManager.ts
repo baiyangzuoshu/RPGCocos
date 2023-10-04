@@ -64,6 +64,7 @@ export class UIManager extends Component {
 
     public DestroyUIView(viewName: string): void {
         if(!this.uiMap[viewName]) {
+            console.error("can not find ui view: ", viewName);
             return;
         }
 

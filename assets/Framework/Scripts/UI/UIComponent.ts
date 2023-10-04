@@ -22,6 +22,7 @@ export class UIComponent extends Component {
     public AddButtonListener(viewName: string, caller: any, func: any) {
         var view_node = this.ViewNode(viewName);
         if (!view_node) {
+            console.error("cannot find view node: ", viewName)
             return;
         }
 

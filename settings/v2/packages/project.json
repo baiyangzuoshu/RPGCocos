@@ -5,5 +5,11 @@
       "name": "DEBUG_UI",
       "value": 524288
     }
-  ]
+  ],
+  "general": {
+    "designResolution": {
+      "width": 960,
+      "height": 640
+    }
+  }
 }

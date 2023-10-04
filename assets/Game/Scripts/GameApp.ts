@@ -1,4 +1,4 @@
-import { Component, Node, TextAsset, find } from 'cc';
+import { Component, Node, TextAsset, find, Prefab } from 'cc';
 import { SceneManager } from '../../Framework/Scripts/Managers/SceneManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { Debug } from '../../Framework/Scripts/Managers/Debug';
@@ -11,6 +11,7 @@ import { PoolManager } from '../../Framework/Scripts/Managers/PoolManager';
 import { WsNetMgr } from '../../Framework/Scripts/Managers/WsNetMgr';
 
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
+import { BundleName } from './Constants';
 
 
 export class GameApp extends Component {
@@ -33,9 +34,12 @@ export class GameApp extends Component {
         console.log("EnterGame #######");
         // 由其它开发者来接管整个游戏项目的代码编写;
         // SceneManager.Instance.EnterScene("main"); // 如果你把场景当作是ab包的，那么加载不到;
-        SceneManager.Instance.IE_RunScene("Main");
+        await SceneManager.Instance.IE_RunScene("Main");
         // end
-
+        await UIManager.Instance.IE_ShowUIView("UILogin",null,BundleName.GUI);
+        //由于Boot场景是常驻场景，所以需要手动销毁UIBoot节点
+        let UIBoot=find("Canvas/UIBoot");
+        UIBoot.destroy();
         /*
         // 测试加载全部的ab包资源
         await ResManager.Instance.IE_LoadBundleAndAllAssets("Datas", TextAsset);
