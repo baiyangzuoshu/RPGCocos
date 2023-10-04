@@ -1,8 +1,11 @@
 import { _decorator, Component, Node, EditBox } from 'cc';
+import { EventManager } from '../../../Framework/Scripts/Managers/EventManager';
 import { SceneManager } from '../../../Framework/Scripts/Managers/SceneManager';
 import { UIManager } from '../../../Framework/Scripts/Managers/UIManager';
 import { UIComponent } from '../../../Framework/Scripts/UI/UIComponent';
-import { BundleName } from '../Constants';
+import { MapLoadModel } from '../3rd/map/base/MapLoadModel';
+import { BundleName, UIEventName, UIView } from '../Constants';
+import { GameController } from '../GameController';
 const { ccclass, property } = _decorator;
 @ccclass('UILoginUICtrl')
 export class UILoginUICtrl extends UIComponent {
@@ -22,19 +25,14 @@ export class UILoginUICtrl extends UIComponent {
         console.log("account:", this.accountEditBox.string);
         console.log("password:", this.passwordEditBox.string);
 
-        await SceneManager.Instance.IE_RunScene("Main");
-        //await UIManager.Instance.IE_ShowUIView("UILoading",null,BundleName.GUI);
-        UIManager.Instance.DestroyUIView("UILogin");
+        EventManager.Instance.Emit(UIEventName.UIEventHome, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
     }
 
     private async OnClickRegist() {
         console.log("OnClickRegist");
         console.log("account:", this.accountEditBox.string);
         console.log("password:", this.passwordEditBox.string);
-
-        await SceneManager.Instance.IE_RunScene("Main");
-        //await UIManager.Instance.IE_ShowUIView("UILoading",null,BundleName.GUI);
-        UIManager.Instance.DestroyUIView("UILogin"); 
+        EventManager.Instance.Emit(UIEventName.UIEventHome, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
     }
 
     update(deltaTime: number) {

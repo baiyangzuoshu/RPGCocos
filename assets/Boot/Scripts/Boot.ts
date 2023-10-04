@@ -10,6 +10,7 @@ import { ExcelManager } from '../../Framework/Scripts/Managers/ExcelManager';
 import { PoolManager } from '../../Framework/Scripts/Managers/PoolManager';
 import { WsNetMgr } from '../../Framework/Scripts/Managers/WsNetMgr';
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
+import { GameController } from '../../Game/Scripts/GameController';
 
 
 const { ccclass, property } = _decorator;
@@ -56,7 +57,8 @@ export class Boot extends Component {
         // 自定义事件订阅与发布模块
         this.node.addComponent(EventManager).Init();
         // end
-        
+        //游戏导航器的初始化
+        this.node.addComponent(GameController).Init();
         
         // 初始化UI框架
         this.node.addComponent(UIManager).Init();

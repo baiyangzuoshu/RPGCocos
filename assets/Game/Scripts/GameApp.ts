@@ -11,7 +11,7 @@ import { PoolManager } from '../../Framework/Scripts/Managers/PoolManager';
 import { WsNetMgr } from '../../Framework/Scripts/Managers/WsNetMgr';
 
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
-import { BundleName } from './Constants';
+import { BundleName, UIView } from './Constants';
 
 
 export class GameApp extends Component {
@@ -36,7 +36,7 @@ export class GameApp extends Component {
         // SceneManager.Instance.EnterScene("main"); // 如果你把场景当作是ab包的，那么加载不到;
         await SceneManager.Instance.IE_RunScene("Main");
         // end
-        await UIManager.Instance.IE_ShowUIView("UILogin",null,BundleName.GUI);
+        await UIManager.Instance.IE_ShowUIView(UIView.UILogin,null,BundleName.GUI);
         //由于Boot场景是常驻场景，所以需要手动销毁UIBoot节点
         let UIBoot=find("Canvas/UIBoot");
         UIBoot.destroy();
