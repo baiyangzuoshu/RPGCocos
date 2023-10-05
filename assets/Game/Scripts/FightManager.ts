@@ -6,6 +6,7 @@ import MapParams from './3rd/map/base/MapParams';
 import { BundleName } from './Constants';
 import { DeviceParams } from './DeviceParams';
 import { MapViewLoader } from './MapViewLoader';
+import { ECSWorld } from './World/ECSWorld';
 const { ccclass, property } = _decorator;
 
 export class FightManager extends Component {
@@ -69,17 +70,18 @@ export class FightManager extends Component {
         // end
 
         // 地图物体上的显示
+        gameMap.addComponent(ECSWorld).Init(this.mapParams,this.mapData);
         // end
     }
 
     public async loadAndGotoMap(mapId:string,enterSpawnId:number,mapLoadModel:MapLoadModel=MapLoadModel.single){
         //加载地图
         let jsonData=await ResManager.Instance.IE_GetAsset(BundleName.MapData,mapId,JsonAsset) as JsonAsset;
-        console.log(jsonData);
+        //console.log(jsonData);
         let texture=await ResManager.Instance.IE_GetAsset(BundleName.MapBg,mapId+"/texture",Texture2D) as Texture2D;
-        console.log(texture);
+        //console.log(texture);
         let prefab=await ResManager.Instance.IE_GetAsset(BundleName.Map,"GameMap",Prefab);
-        console.log(prefab);
+        //console.log(prefab);
         await this.initGameMap(jsonData.json,texture,mapLoadModel);
     }
 }

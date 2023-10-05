@@ -7,7 +7,6 @@ export class MapViewLoader extends Component {
     private bgImg: Sprite = null!;
 
     public Init(mapParams: MapParams): void {
-
         this.bgImg = this.node.getChildByPath("Layer/MapLayer/MapBg").getComponent(Sprite);
 
         if(mapParams.mapLoadModel === MapLoadModel.single) {
@@ -19,8 +18,6 @@ export class MapViewLoader extends Component {
     }
 
     private InitWithSingle(mapParams: MapParams):void {
-
-        console.log("InitWithSingle ######");
         var spriteFrame: SpriteFrame = new SpriteFrame();
 		spriteFrame.texture = mapParams.bgTex;
 		this.bgImg.spriteFrame = spriteFrame;
@@ -31,7 +28,6 @@ export class MapViewLoader extends Component {
 
     private InitWithSlices(mapParams: MapParams): void {
         error("目前没有实现....");
-        
     }
 }
 

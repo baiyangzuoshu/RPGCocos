@@ -14,3 +14,12 @@ export enum UIView {
 export enum UIEventName {
     UILoginSuccessReturn="UILoginSuccessReturn",
 }
+
+export enum EntityType {
+    NPC="npc",
+    Monster="monster",
+    Transfer="transfer",
+    SpawnPoint="spawnPoint",
+    Player="Player",
+
+}
