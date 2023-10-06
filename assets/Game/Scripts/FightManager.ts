@@ -15,6 +15,7 @@ export class FightManager extends Component {
     private mapRoot: Node = null!;
     private mapData: MapData = null!;
     private mapParams: MapParams = null!;
+    private ecsWorld: ECSWorld = null!;
 
     protected onLoad(): void {
         if(FightManager.Instance !== null) {
@@ -70,7 +71,8 @@ export class FightManager extends Component {
         // end
 
         // 地图物体上的显示
-        gameMap.addComponent(ECSWorld).Init(this.mapParams,this.mapData);
+        this.ecsWorld = gameMap.addComponent(ECSWorld);
+        this.ecsWorld.Init(this.mapParams, this.mapData);
         // end
     }
 
@@ -83,6 +85,9 @@ export class FightManager extends Component {
         let prefab=await ResManager.Instance.IE_GetAsset(BundleName.Map,"GameMap",Prefab);
         //console.log(prefab);
         await this.initGameMap(jsonData.json,texture,mapLoadModel);
+        // 把游戏主角创建出来
+        var config = {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: enterSpawnId };
+        this.ecsWorld.OnPlayerEnterWorld(config);
     }
 }
 

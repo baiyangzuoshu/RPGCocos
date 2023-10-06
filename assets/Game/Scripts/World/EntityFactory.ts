@@ -15,8 +15,8 @@ export class EntityFactory extends Component {
     }
 
     // 来自于网络, {playerType: 1, selectRoleId: 0, controlType: 1, controlMode: 2, x: 位置, y: 位置}
-    public static async CreatePlayerEntity(config: any) {
-        console.log(config);
+    public static async CreatePlayerEntity(config: any, x, y) {
+        // console.log(config);
 
         // 在场景中构造节点
         var entity: PlayerEntity = new PlayerEntity();
@@ -29,8 +29,8 @@ export class EntityFactory extends Component {
         // end
 
         // TransformComponent
-        entity.transformComponent.pos.x = config.x;
-        entity.transformComponent.pos.y = config.y;
+        entity.transformComponent.pos.x = x;
+        entity.transformComponent.pos.y = y;
         // end 
 
         // ShapeComponent
@@ -115,7 +115,7 @@ export class EntityFactory extends Component {
         return null;
     }
 
-    public static CreateEntity(config: any): any {
+    public static CreateMapEntity(config: any): any {
         var ret: any = null;
 
         if(config.type == EntityName.NPC) {

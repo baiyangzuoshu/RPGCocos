@@ -24,3 +24,7 @@ export enum EntityName {
     Player="Player",
 
 }
+
+export enum MapItemType {   
+    spawnPoint="spawnPoint",
+}

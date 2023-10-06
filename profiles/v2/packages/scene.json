@@ -395,10 +395,28 @@
         "y": 0,
         "z": 0
       }
+    },
+    "1dJUkOE+FMQ4HNrYOipY5l": {
+      "position": {
+        "x": 558.4999999999999,
+        "y": 266.49999999999994,
+        "z": 5000
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "viewCenter": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
     }
   },
   "camera-uuids": [
-    "a6ZdwJ/zdKR7Pu07OlEps5"
+    "1dJUkOE+FMQ4HNrYOipY5l"
   ],
   "camera": {
     "fov": 45,
