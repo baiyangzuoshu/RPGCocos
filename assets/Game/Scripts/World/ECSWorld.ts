@@ -18,6 +18,8 @@ export class ECSWorld extends Component {
     }
 
     public Init(mapParams:MapParams,mapData:MapData): void {
+        EntityFactory.Init(this.node);
+
         this.initMapElement(mapParams,mapData);
     }
 

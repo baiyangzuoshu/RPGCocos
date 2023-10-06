@@ -3,6 +3,7 @@ export enum BundleName {
     MapData="MapData",
     MapBg="MapBg",
     Map="Map",
+    Charactors="Charactors"
 }
 
 export enum UIView {
@@ -15,7 +16,7 @@ export enum UIEventName {
     UILoginSuccessReturn="UILoginSuccessReturn",
 }
 
-export enum EntityType {
+export enum EntityName {
     NPC="npc",
     Monster="monster",
     Transfer="transfer",

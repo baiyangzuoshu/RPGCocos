@@ -1,8 +1,18 @@
-import { _decorator, Component, Node } from 'cc';
-import { EntityType } from '../Constants';
+import { _decorator, Component, Node, Prefab, instantiate, Label } from 'cc';
+import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
+import { BundleName, EntityName } from '../Constants';
+import { EntityType } from './Components/BaseComponent';
+import { TransferEntity } from './Entities/TransferEntity';
 const { ccclass, property } = _decorator;
 
 export class EntityFactory extends Component {
+    public static autoID: number = 1;
+    public static entityRoot: Node = null;
+    
+    public static Init(gameMap: Node): void {
+        EntityFactory.entityRoot = gameMap.getChildByPath("Layer/EntityLayer");
+    }
+
     public static CreatePlayerEntity(config: any): any {
         return null;
     }
@@ -16,9 +26,44 @@ export class EntityFactory extends Component {
         return null;
     }
 
-    private static CreateTransferEntity(config: any): any {
+    private static async CreateTransferEntity(config: any) {
         console.log("CreateTransferEntity", config);
-        return null;
+        // 在场景中构造节点
+        var entity: TransferEntity = new TransferEntity();
+        // 我们要把Entity里面的数据给他初始化好
+        // BaseComponent
+        entity.baseComponent.entityID = EntityFactory.autoID ++;
+        entity.baseComponent.type = EntityType.Transfer;
+        entity.baseComponent.name = config.objName;
+        entity.baseComponent.subTypeID = config.objType;
+        // end
+
+        // TransferComponet
+        entity.transferComponent.targetMapId = config.targetMapId;
+        entity.transferComponent.targetMapSpawnId = config.targetMapSpawnId;
+        entity.transferComponent.transferType = config.transferType;        
+        // end
+
+        // ShapeComponent
+        var radiusArray = [100, 100, 50];
+        entity.shapeComponent.radius = radiusArray[config.transferType];
+        // end
+        
+        // TransformComponent
+        entity.transformComponent.pos.x = config.x;
+        entity.transformComponent.pos.y = config.y;
+        // end 
+        
+        // 把传送门节点new出来, 后面整理到配置表;
+        var prefabNameArray = ["Prefabs/TransferDoor1", "Prefabs/TransferDoor2", "Prefabs/TransferDoor3"];
+        var prefab = await ResManager.Instance.IE_GetAsset(BundleName.Charactors, prefabNameArray[config.transferType], Prefab);
+        entity.baseComponent.gameObject = instantiate(prefab) as unknown as Node;
+        entity.baseComponent.gameObject.getChildByName("NameTxt").getComponent(Label).string = config.objName;
+        EntityFactory.entityRoot.addChild(entity.baseComponent.gameObject);
+        entity.baseComponent.gameObject.setPosition(entity.transformComponent.pos);
+        // end 
+
+        return entity;
     }
 
     private static CreateSpwanPointEnity(config: any): any {
@@ -29,15 +74,15 @@ export class EntityFactory extends Component {
     public static CreateEntity(config: any): any {
         var ret: any = null;
 
-        if(config.type == EntityType.NPC) {
+        if(config.type == EntityName.NPC) {
             EntityFactory.CreateNPCEntity(config);
         }
-        else if(config.type == EntityType.Monster) {
+        else if(config.type == EntityName.Monster) {
             EntityFactory.CreateMonestEntity(config);
         }
-        else if(config.type == EntityType.Transfer) {
+        else if(config.type == EntityName.Transfer) {
             ret = EntityFactory.CreateTransferEntity(config);
-        }else if(config.type == EntityType.SpawnPoint) {
+        }else if(config.type == EntityName.SpawnPoint) {
             ret = EntityFactory.CreateSpwanPointEnity(config);
         }
 
