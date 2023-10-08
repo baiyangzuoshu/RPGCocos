@@ -12,8 +12,9 @@ export enum UIView {
     UIGame="UIGame",
 } 
 
-export enum UIEventName {
+export enum UIGameEvent {
     UILoginSuccessReturn="UILoginSuccessReturn",
+    UITouchNav="UITouchNav",
 }
 
 export enum EntityName {
@@ -27,4 +28,8 @@ export enum EntityName {
 
 export enum MapItemType {   
     spawnPoint="spawnPoint",
+}
+
+export enum UserOptEvent {
+    TouchNav = 1,
 }

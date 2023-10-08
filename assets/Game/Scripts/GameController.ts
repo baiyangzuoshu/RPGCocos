@@ -4,7 +4,7 @@ import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { SceneManager } from '../../Framework/Scripts/Managers/SceneManager';
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
 import { MapLoadModel } from './3rd/map/base/MapLoadModel';
-import { BundleName, UIEventName, UIView } from './Constants';
+import { BundleName, UIGameEvent, UIView } from './Constants';
 import { FightManager } from './FightManager';
 const { ccclass, property } = _decorator;
 
@@ -21,7 +21,7 @@ export class GameController extends Component {
     }
 
     public Init(): void {
-        EventManager.Instance.AddEventListener(UIEventName.UILoginSuccessReturn,this.UILoginSuccessReturn,this);
+        EventManager.Instance.AddEventListener(UIGameEvent.UILoginSuccessReturn,this.UILoginSuccessReturn,this);
     }
 
     private async UILoginSuccessReturn(uname:string,udata:any){
