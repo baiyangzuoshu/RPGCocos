@@ -61,17 +61,18 @@ export class EntityFactory extends Component {
         return entity;
     }
 
-    private static CreateNPCEntity(config: any): any {
-        console.log("CreateNPCEntity");
+    public static CreateNPCEntity(config: any): any {
+        console.log("");
         return null;
     }
 
-    private static CreateMonestEntity(config: any): any {
+    public static CreateMonestEntity(config: any): any {
+        
         return null;
     }
 
-    private static async CreateTransferEntity(config: any) {
-        console.log("CreateTransferEntity", config);
+    public static async CreateTransferEntity(config: any) {
+        
         // 在场景中构造节点
         var entity: TransferEntity = new TransferEntity();
         // 我们要把Entity里面的数据给他初始化好
@@ -108,29 +109,6 @@ export class EntityFactory extends Component {
         // end 
 
         return entity;
-    }
-
-    private static CreateSpwanPointEnity(config: any): any {
-        console.log("CreateSpwanPointEnity", config);
-        return null;
-    }
-
-    public static CreateMapEntity(config: any): any {
-        var ret: any = null;
-
-        if(config.type == EntityName.NPC) {
-            EntityFactory.CreateNPCEntity(config);
-        }
-        else if(config.type == EntityName.Monster) {
-            EntityFactory.CreateMonestEntity(config);
-        }
-        else if(config.type == EntityName.Transfer) {
-            ret = EntityFactory.CreateTransferEntity(config);
-        }else if(config.type == EntityName.SpawnPoint) {
-            ret = EntityFactory.CreateSpwanPointEnity(config);
-        }
-
-        return ret;
     }
 }
 

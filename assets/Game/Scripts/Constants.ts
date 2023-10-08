@@ -28,6 +28,9 @@ export enum EntityName {
 
 export enum MapItemType {   
     spawnPoint="spawnPoint",
+    npc="npc",
+    monster="monster",
+    transfer="transfer",
 }
 
 export enum UserOptEvent {

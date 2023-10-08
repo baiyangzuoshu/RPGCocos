@@ -1,12 +1,27 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, warn } from 'cc';
 import MapData from '../3rd/map/base/MapData';
 import MapParams from '../3rd/map/base/MapParams';
 import { MapItemType } from '../Constants';
+import { PlayerEntity } from './Entities/PlayerEntity';
 import { EntityFactory } from './EntityFactory';
 export class ECSWorld extends Component {
     private spawnPoints = {};
+    private playerEntities = {};
+    private npcEntities = {};
+    private monsterEntities = {};
+    private transferEntities = {};
 
-    private initMapElement(mapParams:MapParams,mapData:MapData): void {
+
+    public GetPlayerEntityByID(entityID: number): PlayerEntity {
+        if(this.playerEntities[entityID]) {
+            return this.playerEntities[entityID];
+        }
+
+        warn("entityID: " + entityID + "can not find!!!")
+        return null;
+    }
+    
+    private async InitMapElement(mapParams: MapParams, mapData: MapData) {
         var mapItems:object[] = mapData.mapItems;
 
         if(!mapItems) {
@@ -20,18 +35,25 @@ export class ECSWorld extends Component {
                 this.spawnPoints[mapItem.spawnId] = mapItem;
                 continue;
             }
-            var entity: any = EntityFactory.CreateMapEntity(mapItem); 
-            // 把entity放到我们entity的世界里面来;  
+
+            var entity = null;
+
+            if(mapItem.type == MapItemType.npc) {
+                entity = EntityFactory.CreateNPCEntity(mapItem);
+                this.npcEntities[entity.baseComponent.entityID] = entity;
+            }
+            else if(mapItem.type == MapItemType.monster) {
+                entity = EntityFactory.CreateMonestEntity(mapItem);
+                this.monsterEntities[entity.baseComponent.entityID] = entity;
+            }
+            else if(mapItem.type == MapItemType.transfer) {
+                entity = await EntityFactory.CreateTransferEntity(mapItem);
+                this.transferEntities[entity.baseComponent.entityID] = entity;
+            }
+            
         }
     }
 
-    public Init(mapParams:MapParams,mapData:MapData): void {
-        EntityFactory.Init(this.node);
-
-        this.initMapElement(mapParams,mapData);
-        
-    }
-    
     public GetSpwanPosition(spawnId): any {
         var config = null;
 
@@ -55,13 +77,27 @@ export class ECSWorld extends Component {
         return { x: config.x, y: config.y };
     }
 
+    public Init(mapParams: MapParams, mapData: MapData): void {
+        // 
+        EntityFactory.Init(this.node);
+        // end
+
+        // 读取我们的地图数据的内容,把一些我们的物体的Enity给他创建出来，并管理好;
+        this.InitMapElement(mapParams, mapData);
+        // end
+    }
+
     // {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: 1  };
-    public OnPlayerEnterWorld(config) {
+    public async OnPlayerEnterWorld(config) {
         var pos = this.GetSpwanPosition(config.enterSpawnId);
-        EntityFactory.CreatePlayerEntity(config, pos.x, pos.y);
+        var entity = await EntityFactory.CreatePlayerEntity(config, pos.x, pos.y);
+        this.playerEntities[entity.baseComponent.entityID] = entity;
+
+
+        return entity;
     } 
 
-    update(deltaTime: number) {
+    protected update(dt: number): void {
         // AI System的迭代
         // end
 

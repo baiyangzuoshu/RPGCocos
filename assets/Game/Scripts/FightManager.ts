@@ -16,8 +16,10 @@ export class FightManager extends Component {
     public static Instance: FightManager = null;
     private gameCamrea: Camera = null!;
     private mapRoot: Node = null!;
-    private mapData: MapData = null!;
+    private mapData: any = null!;
     private mapParams: MapParams = null!;
+    private selfPlayerEntity = null!;
+
     private ecsWorld: ECSWorld = null!;
 
     protected onLoad(): void {
@@ -42,15 +44,20 @@ export class FightManager extends Component {
     }
 
     private OnUITouchNav(eventName: string, udata: any): void {
+        if(this.selfPlayerEntity === null) {
+            return;
+        }
+
         var touchPos = udata as Vec2;
-        console.log(touchPos);
         var pos:Vec3 = this.getCameraPos().add(new Vec3(touchPos.x,touchPos.y));
         console.log(pos);
         // 发往服务器
+        // 服务器开发的时候，发往服务器的，我们不要带玩家的id;
+        // 服务端根据哪个socket ----> 是哪个玩家对应的socket, ===>id;
         // end
 
         // 测试(网络数据模块来调用，由于没有网络，所以我们这里来接入)
-        this.OnNetEventReturn({eventType: UserOptEvent.TouchNav, pos: pos, playerId: 1});
+        this.OnNetEventReturn({eventType: UserOptEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
         // end
     }
 
@@ -67,7 +74,8 @@ export class FightManager extends Component {
         var pos = event.pos;
         var playerId = event.playerId;
 
-
+        var entity = this.ecsWorld.GetPlayerEntityByID(playerId);
+        console.log(entity);
         // var roadNodeArr:RoadNode[] = PathFindingAgent.instance.seekPath2(targetX,targetY,this.navAgent.radius);
 
         
@@ -176,9 +184,9 @@ export class FightManager extends Component {
         let prefab=await ResManager.Instance.IE_GetAsset(BundleName.Map,"GameMap",Prefab);
         //console.log(prefab);
         await this.initGameMap(jsonAsset.json,texture,mapLoadModel);
-        // 把游戏主角创建出来
+        // 测试代码, 把游戏主角创建出来, 网络里面传过来一个玩家，然后你判断以下，这个playerId 是不是我们的 自己的这个id;
         var config = {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: enterSpawnId };
-        this.ecsWorld.OnPlayerEnterWorld(config);
+        this.selfPlayerEntity = await this.ecsWorld.OnPlayerEnterWorld(config);
     }
 }
 
