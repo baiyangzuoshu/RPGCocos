@@ -1,4 +1,5 @@
 import { BaseComponent } from "../Components/BaseComponent";
+import { NavComponent } from "../Components/NavComponent";
 import { RoleComponent } from "../Components/RoleComponent";
 import { ShapeComponent } from "../Components/ShapeComponent";
 import { TransformComponent } from "../Components/TransformComponent";
@@ -13,6 +14,8 @@ export class PlayerEntity {
     unitComponent: UnitComponent = new UnitComponent(); 
 
     roleComponent: RoleComponent = new RoleComponent();
+
+    navComponent: NavComponent = new NavComponent();
 }
 
 

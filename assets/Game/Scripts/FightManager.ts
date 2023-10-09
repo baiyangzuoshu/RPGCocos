@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Camera, JsonAsset, Texture2D, Prefab, instantiate, v3, Vec2, Vec3 } from 'cc';
+import { _decorator, Component, Node, Camera, JsonAsset, Texture2D, Prefab, instantiate, v3, Vec2, Vec3, UITransform } from 'cc';
 import { EventManager } from '../../Framework/Scripts/Managers/EventManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import MapData from './3rd/map/base/MapData';
@@ -6,10 +6,12 @@ import { MapLoadModel } from './3rd/map/base/MapLoadModel';
 import MapParams from './3rd/map/base/MapParams';
 import PathFindingAgent from './3rd/map/road/PathFindingAgent';
 import PathLog from './3rd/map/road/PathLog';
+import RoadNode from './3rd/map/road/RoadNode';
 import { BundleName, UIGameEvent, UserOptEvent } from './Constants';
 import { DeviceParams } from './DeviceParams';
 import { MapViewLoader } from './MapViewLoader';
 import { ECSWorld } from './World/ECSWorld';
+import { NavSystem } from './World/Systems/NavSystem';
 const { ccclass, property } = _decorator;
 
 export class FightManager extends Component {
@@ -49,8 +51,9 @@ export class FightManager extends Component {
         }
 
         var touchPos = udata as Vec2;
-        var pos:Vec3 = this.getCameraPos().add(new Vec3(touchPos.x,touchPos.y));
-        console.log(pos);
+        var pos: Vec3 = this.getCameraPos().add(new Vec3(touchPos.x,touchPos.y));
+        pos = this.ecsWorld.node.getComponent(UITransform).convertToNodeSpaceAR(pos);
+        // console.log(pos);
         // 发往服务器
         // 服务器开发的时候，发往服务器的，我们不要带玩家的id;
         // 服务端根据哪个socket ----> 是哪个玩家对应的socket, ===>id;
@@ -76,7 +79,14 @@ export class FightManager extends Component {
 
         var entity = this.ecsWorld.GetPlayerEntityByID(playerId);
         console.log(entity);
-        // var roadNodeArr:RoadNode[] = PathFindingAgent.instance.seekPath2(targetX,targetY,this.navAgent.radius);
+        // console.log(entity);
+        var roadNodeArr:RoadNode[] = PathFindingAgent.instance.seekPath2(entity.transformComponent.pos.x, entity.transformComponent.pos.y, pos.x, pos.y);
+        // console.log(roadNodeArr);
+        if(roadNodeArr.length < 2) {
+            return;
+        }
+
+        NavSystem.Instance.StartEntityAction(roadNodeArr, entity.navComponent, entity.unitComponent);
 
         
     }

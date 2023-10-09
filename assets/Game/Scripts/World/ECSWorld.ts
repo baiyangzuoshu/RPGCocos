@@ -4,6 +4,7 @@ import MapParams from '../3rd/map/base/MapParams';
 import { MapItemType } from '../Constants';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { EntityFactory } from './EntityFactory';
+import { NavSystem } from './Systems/NavSystem';
 export class ECSWorld extends Component {
     private spawnPoints = {};
     private playerEntities = {};
@@ -97,12 +98,47 @@ export class ECSWorld extends Component {
         return entity;
     } 
 
+    private NavSystemUpdate(dt: number): void {
+        for (let key in this.playerEntities) {
+            if(!this.playerEntities[key]) {
+                continue;
+            }
+
+            if(this.playerEntities[key].navComponent.isWalking === false) {
+                continue;
+            }
+
+            NavSystem.Instance.Update(dt, this.playerEntities[key].navComponent, 
+                                      this.playerEntities[key].unitComponent, 
+                                      this.playerEntities[key].transformComponent,
+                                      this.playerEntities[key].baseComponent);
+        }
+
+        for (let key in this.monsterEntities) {
+            if(!this.monsterEntities[key]) {
+                continue;
+            }
+
+            if(this.monsterEntities[key].navComponent.isWalking === false) {
+                continue;
+            }
+
+            NavSystem.Instance.Update(dt, this.monsterEntities[key].navComponent, 
+                                      this.monsterEntities[key].unitComponent, 
+                                      this.monsterEntities[key].transformComponent,
+                                      this.monsterEntities[key].baseComponent);
+        }
+    }
+
     protected update(dt: number): void {
+
         // AI System的迭代
         // end
 
-        // 寻路导航的迭代
+        // 导航的迭代
+        this.NavSystemUpdate(dt);
         // end
+
     }
 }
 
