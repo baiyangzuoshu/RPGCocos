@@ -7,6 +7,7 @@ import { UnitComponent } from "../Components/UnitComponent";
 
 
 export class PlayerEntity {
+
     baseComponent: BaseComponent = new BaseComponent();
     shapeComponent: ShapeComponent = new ShapeComponent();
     transformComponent: TransformComponent = new TransformComponent();
@@ -16,6 +17,8 @@ export class PlayerEntity {
     roleComponent: RoleComponent = new RoleComponent();
 
     navComponent: NavComponent = new NavComponent();
+    // userInfoComponent: UserInfoComponnet = new UserInfoComponnet();
+    // uname, uid, usex, 装备; ...
 }
 
 

@@ -1,5 +1,4 @@
 import { Node } from 'cc';
-
 export enum EntityType {
     Invalid = -1,
     Transfer = 0, // 

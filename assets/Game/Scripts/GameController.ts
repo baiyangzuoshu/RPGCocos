@@ -31,7 +31,7 @@ export class GameController extends Component {
 
         await ResManager.Instance.IE_GetAsset(BundleName.GUI,UIView.UIGame,Prefab);
 
-        await FightManager.Instance.loadAndGotoMap(udata.mapId,udata.enterSpawnId,udata.mapLoadModel);
+        await FightManager.Instance.LoadAndGotoMap(udata.mapId,udata.enterSpawnId,udata.mapLoadModel);
 
         //删除加载界面
         UIManager.Instance.DestroyUIView(UIView.UILoading);

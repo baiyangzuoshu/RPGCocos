@@ -3,8 +3,10 @@ import MapData from '../3rd/map/base/MapData';
 import MapParams from '../3rd/map/base/MapParams';
 import { MapItemType } from '../Constants';
 import { PlayerEntity } from './Entities/PlayerEntity';
+import { TransferEntity } from './Entities/TransferEntity';
 import { EntityFactory } from './EntityFactory';
 import { NavSystem } from './Systems/NavSystem';
+import { TransferSystem } from './Systems/TransferSystem';
 export class ECSWorld extends Component {
     private spawnPoints = {};
     private playerEntities = {};
@@ -98,6 +100,24 @@ export class ECSWorld extends Component {
         return entity;
     } 
 
+    private SimTrasferUpdate(dt: number): void {
+        for (let key in this.transferEntities) {
+            var trasferEntity: TransferEntity = this.transferEntities[key];
+            // 遍历传送门，AOI范围内的玩家，不用遍历这个服务器上的所有玩家
+            // 我们单机游戏，玩家只有一个，所以我们遍历所有玩家列表;
+            for(let playerKey in this.playerEntities) {
+                var playerEntity = this.playerEntities[playerKey];
+
+                TransferSystem.Update(trasferEntity.transferComponent,
+                    trasferEntity.transformComponent, 
+                    trasferEntity.shapeComponent, 
+                    playerEntity.transformComponent, 
+                    playerEntity.baseComponent, 
+                    playerEntity.shapeComponent);
+            }
+        }
+    }
+    
     private NavSystemUpdate(dt: number): void {
         for (let key in this.playerEntities) {
             if(!this.playerEntities[key]) {
@@ -108,7 +128,7 @@ export class ECSWorld extends Component {
                 continue;
             }
 
-            NavSystem.Instance.Update(dt, this.playerEntities[key].navComponent, 
+            NavSystem.Update(dt, this.playerEntities[key].navComponent, 
                                       this.playerEntities[key].unitComponent, 
                                       this.playerEntities[key].transformComponent,
                                       this.playerEntities[key].baseComponent);
@@ -123,7 +143,7 @@ export class ECSWorld extends Component {
                 continue;
             }
 
-            NavSystem.Instance.Update(dt, this.monsterEntities[key].navComponent, 
+            NavSystem.Update(dt, this.monsterEntities[key].navComponent, 
                                       this.monsterEntities[key].unitComponent, 
                                       this.monsterEntities[key].transformComponent,
                                       this.monsterEntities[key].baseComponent);
@@ -138,7 +158,9 @@ export class ECSWorld extends Component {
         // 导航的迭代
         this.NavSystemUpdate(dt);
         // end
-
+        // 模拟服务器上的传送门的迭代计算
+        this.SimTrasferUpdate(dt);
+        // end
     }
 }
 

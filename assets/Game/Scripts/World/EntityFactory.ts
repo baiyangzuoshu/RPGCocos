@@ -1,9 +1,12 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, Label, BoxCollider, SphereCollider } from 'cc';
 import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
 import { BundleName, EntityName } from '../Constants';
 import { EntityType } from './Components/BaseComponent';
+import { RectShapeComponent, RoundShapeComponent, ShapeType } from './Components/ShapeComponent';
+import { UnitState } from './Components/UnitComponent';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { TransferEntity } from './Entities/TransferEntity';
+import { EntityUtils } from './EntityUtils';
 const { ccclass, property } = _decorator;
 
 export class EntityFactory extends Component {
@@ -14,7 +17,7 @@ export class EntityFactory extends Component {
         EntityFactory.entityRoot = gameMap.getChildByPath("Layer/EntityLayer");
     }
 
-    // 来自于网络, {playerType: 1, selectRoleId: 0, controlType: 1, controlMode: 2, x: 位置, y: 位置}
+    // 来自于网络, {playerType: 1, selectRoleId: 0, controlType: 1, controlMode: 2, x: 位置, y: 位置, state}
     public static async CreatePlayerEntity(config: any, x, y) {
         // console.log(config);
 
@@ -45,8 +48,6 @@ export class EntityFactory extends Component {
         entity.roleComponent.controlType = config.controlType; // touch, joystick
         // end
 
-        // UnitComponent, 从配置文件里面读,
-        // end
 
         // 创建我们的entity对应的节点
         // var prefabNameArray = ["Prefabs/TransferDoor1", "Prefabs/TransferDoor2", "Prefabs/TransferDoor3"];
@@ -58,16 +59,35 @@ export class EntityFactory extends Component {
         entity.baseComponent.gameObject.setPosition(entity.transformComponent.pos);
         // end
 
+        // UnitComponent, 从配置文件里面读,
+        entity.unitComponent.state = UnitState.none;
+        entity.unitComponent.direction = config.direction;
+        EntityUtils.SetEntityState(config.state, entity.unitComponent, entity.baseComponent);
+        EntityUtils.SetEntityDirection(config.direction, entity.unitComponent, entity.baseComponent)
+        // end
+
+        // ShapeComponent
+        var b = entity.baseComponent.gameObject.getChildByName("FootTrigger").getComponent(BoxCollider)
+        if(b) {
+            entity.shapeComponent.type = ShapeType.Rect;
+            entity.shapeComponent.shape = new RectShapeComponent();
+            entity.shapeComponent.shape.width = b.size.x;
+            entity.shapeComponent.shape.height = b.size.y;
+
+            console.log(entity.shapeComponent.shape);
+        }
+        // end
+
         return entity;
     }
 
-    public static CreateNPCEntity(config: any): any {
-        console.log("");
+    public static async CreateNPCEntity(config: any) {
+        console.log("CreateNPCEntity", config);
         return null;
     }
 
-    public static CreateMonestEntity(config: any): any {
-        
+    public static async CreateMonestEntity(config: any) {
+        console.log("CreateMonestEntity", config);
         return null;
     }
 
@@ -89,11 +109,6 @@ export class EntityFactory extends Component {
         entity.transferComponent.transferType = config.transferType;        
         // end
 
-        // ShapeComponent
-        var radiusArray = [100, 100, 50];
-        entity.shapeComponent.radius = radiusArray[config.transferType];
-        // end
-        
         // TransformComponent
         entity.transformComponent.pos.x = config.x;
         entity.transformComponent.pos.y = config.y;
@@ -107,6 +122,24 @@ export class EntityFactory extends Component {
         EntityFactory.entityRoot.addChild(entity.baseComponent.gameObject);
         entity.baseComponent.gameObject.setPosition(entity.transformComponent.pos);
         // end 
+
+        // ShapeComponent, 原版资源用的是3D 碰撞器，最好用2D的;
+        var b = entity.baseComponent.gameObject.getComponent(BoxCollider)
+        if(b) {
+            entity.shapeComponent.type = ShapeType.Rect;
+            entity.shapeComponent.shape = new RectShapeComponent();
+            entity.shapeComponent.shape.width = b.size.x;
+            entity.shapeComponent.shape.height = b.size.y;
+        }
+        else {
+            var c = entity.baseComponent.gameObject.getComponent(SphereCollider);
+            if(c) {
+                entity.shapeComponent.shape = new RoundShapeComponent();
+                entity.shapeComponent.shape.radius = c.radius; 
+            }
+        }
+        console.log(entity.shapeComponent.shape);
+        // end
 
         return entity;
     }

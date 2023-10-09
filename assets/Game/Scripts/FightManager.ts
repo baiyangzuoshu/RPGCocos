@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Camera, JsonAsset, Texture2D, Prefab, instantiate, v3, Vec2, Vec3, UITransform } from 'cc';
+import { _decorator, Component, Node, Camera, JsonAsset, Texture2D, Prefab, instantiate, v3, Vec2, Vec3, UITransform, warn } from 'cc';
 import { EventManager } from '../../Framework/Scripts/Managers/EventManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import MapData from './3rd/map/base/MapData';
@@ -7,9 +7,10 @@ import MapParams from './3rd/map/base/MapParams';
 import PathFindingAgent from './3rd/map/road/PathFindingAgent';
 import PathLog from './3rd/map/road/PathLog';
 import RoadNode from './3rd/map/road/RoadNode';
-import { BundleName, UIGameEvent, UserOptEvent } from './Constants';
+import { BundleName, UIGameEvent, ServerReturnEvent, GameEvent } from './Constants';
 import { DeviceParams } from './DeviceParams';
 import { MapViewLoader } from './MapViewLoader';
+import { UnitState } from './World/Components/UnitComponent';
 import { ECSWorld } from './World/ECSWorld';
 import { NavSystem } from './World/Systems/NavSystem';
 const { ccclass, property } = _decorator;
@@ -23,6 +24,7 @@ export class FightManager extends Component {
     private selfPlayerEntity = null!;
 
     private ecsWorld: ECSWorld = null!;
+    private gameEventProcess = {};
 
     protected onLoad(): void {
         if(FightManager.Instance !== null) {
@@ -33,16 +35,22 @@ export class FightManager extends Component {
         FightManager.Instance = this;
     }
 
-    private InitEventListeners(): void {
+    private InitUIEventListeners(): void {
         EventManager.Instance.AddEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
     }
 
-    private RemoveEventListeners(): void {
+    private InitReturnEventListeners(): void {
+        this.gameEventProcess[ServerReturnEvent.TouchNav] = this.OnProcessNavEvent;
+        this.gameEventProcess[ServerReturnEvent.TransterEvent] = this.OnProcessTransferEvent;
+    }
+
+    private RemoveUIEventListeners(): void {
         EventManager.Instance.RemoveEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
     }
 
     protected onDestroy(): void {
-        this.RemoveEventListeners();
+        this.RemoveUIEventListeners();
+        EventManager.Instance.RemoveEventListener(GameEvent.NetServerRetEvent, this.OnServerEventReturn, this);
     }
 
     private OnUITouchNav(eventName: string, udata: any): void {
@@ -60,17 +68,22 @@ export class FightManager extends Component {
         // end
 
         // 测试(网络数据模块来调用，由于没有网络，所以我们这里来接入)
-        this.OnNetEventReturn({eventType: UserOptEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
+        EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
         // end
     }
 
     // {eventType: 1, pos: , playerId, ... }
-    private OnNetEventReturn(event): void {
-        // 正式行走与导航了
-        if(event.eventType === UserOptEvent.TouchNav) { // 最好是和协议整合到一起，用数字来表示;1, 2, 3, ..
-            this.OnProcessNavEvent(event);
+    // {eventType: 传送带事件, playerId: xxxx, mapId: 1, spawnId: xxxx,}
+    // 
+    private OnServerEventReturn(eventName: string, event: any): void {
+        var func = this.gameEventProcess[event.eventType];
+        if(!func) {
+            warn("eventType: " + event.eventType + " has no Handler !!!!");
+            return;
         }
+        func.call(this, event);
     }
+
     
     private OnProcessNavEvent(event): void {
         // 调用寻路了
@@ -78,7 +91,6 @@ export class FightManager extends Component {
         var playerId = event.playerId;
 
         var entity = this.ecsWorld.GetPlayerEntityByID(playerId);
-        console.log(entity);
         // console.log(entity);
         var roadNodeArr:RoadNode[] = PathFindingAgent.instance.seekPath2(entity.transformComponent.pos.x, entity.transformComponent.pos.y, pos.x, pos.y);
         // console.log(roadNodeArr);
@@ -86,9 +98,34 @@ export class FightManager extends Component {
             return;
         }
 
-        NavSystem.Instance.StartEntityAction(roadNodeArr, entity.navComponent, entity.unitComponent);
+        NavSystem.StartAction(roadNodeArr, entity.navComponent, entity.unitComponent);
+       
+    }
 
-        
+    private DeleteOtherEntity(entityId: number): void {
+
+    }
+
+    private SelfTransferMap(mapId, spawnId): void {
+        console.log(mapId, spawnId);
+    }
+
+    private OnProcessTransferEvent(event): void {
+        var mapId = event.mapId;
+        var spawnId = event.spawnId;
+
+        console.log(mapId, spawnId, event.playerId);
+        if(this.selfPlayerEntity !== null) { // 先判断以下是不是自己这个玩家，如果是
+            if(this.selfPlayerEntity.enrityId === event.playerId) {
+                this.SelfTransferMap(mapId, spawnId);
+            }
+            else {
+                this.DeleteOtherEntity(event.playerId);    
+            }
+        }
+        else { // 如果是被人，直接把别人玩家的entity删除就可以了
+            this.DeleteOtherEntity(event.playerId);
+        }
     }
 
     public getCameraPos():Vec3
@@ -104,10 +141,14 @@ export class FightManager extends Component {
     public async Init() {
         this.gameCamrea = this.node.getComponentInChildren(Camera);
         this.mapRoot = this.node.getChildByName("MapStage");
-        this.InitEventListeners();
-        
-    }
+        this.InitUIEventListeners();
+        this.InitReturnEventListeners();   
 
+        // 单机游戏，添加一个事件监听，模拟网络游戏
+        // 如果网络游戏，由网络事件模块，来调用这个接口;
+        EventManager.Instance.AddEventListener(GameEvent.NetServerRetEvent, this.OnServerEventReturn, this);
+        // end
+    }
 
     public GetMapParams(mapData:MapData,bgTex:Texture2D,mapLoadModel:MapLoadModel = 1):MapParams
     {
@@ -129,21 +170,23 @@ export class FightManager extends Component {
 
         return mapParams;
     }
-
-    private async initGameMap(mapData:any,bgTexture:Texture2D, mapLoadModel:MapLoadModel = MapLoadModel.single){
+    
+    private async InitGameMap(mapData: any, bgTex: Texture2D, mapLoadModel:MapLoadModel = MapLoadModel.single) {
         // 地图物体显示出来;
         this.mapData = mapData;
-        this.mapParams = this.GetMapParams(mapData, bgTexture, mapLoadModel);
+        this.mapParams = this.GetMapParams(mapData, bgTex, mapLoadModel);
         // end
+
         // 实例化地图节点出来
         var gameMapPrefab = ResManager.Instance.TryGetAsset(BundleName.Map, "GameMap");
         var gameMap = instantiate(gameMapPrefab) as unknown as Node;
-        this.mapRoot.addChild(gameMap); // Entiry世界坐标系
+        this.mapRoot.addChild(gameMap); // Entity世界
         
         var width = (DeviceParams.winSize.width < this.mapParams.viewWidth) ? DeviceParams.winSize.width : this.mapParams.viewWidth;
         var height = (DeviceParams.winSize.width < this.mapParams.viewHeight) ? DeviceParams.winSize.height : this.mapParams.viewHeight;
         gameMap.setPosition(v3(-width * 0.5, -height * 0.5, 0));
         // end
+
         // 更换我们的地图的背景图片
         gameMap.addComponent(MapViewLoader).Init(this.mapParams);
         // end
@@ -154,7 +197,8 @@ export class FightManager extends Component {
         // end
     }
 
-    public async loadAndGotoMap(mapId:string,enterSpawnId:number,mapLoadModel:MapLoadModel=MapLoadModel.single){
+    public async LoadAndGotoMap(mapId: string, enterSpawnId: number, mapLoadModel:MapLoadModel = MapLoadModel.single) {
+        
         // 加载我们的游戏地图数据
         var jsonAsset: any = await ResManager.Instance.IE_GetAsset(BundleName.MapData, mapId, JsonAsset);
         // console.log(jsonAsset);
@@ -186,17 +230,23 @@ export class FightManager extends Component {
             return true;
         });*/
         //-----------------------------------------------------------------------------------------------------------------------
-        //加载地图
-        
-        //console.log(jsonData);
-        let texture=await ResManager.Instance.IE_GetAsset(BundleName.MapBg,mapId+"/texture",Texture2D) as Texture2D;
-        //console.log(texture);
-        let prefab=await ResManager.Instance.IE_GetAsset(BundleName.Map,"GameMap",Prefab);
-        //console.log(prefab);
-        await this.initGameMap(jsonAsset.json,texture,mapLoadModel);
+
+        // 加载我们的游戏地图的背景
+        var bgTex = await ResManager.Instance.IE_GetAsset(BundleName.MapBg, mapId + "/texture", Texture2D);
+        // end
+
+        // 加载我们的游戏地图预制体
+        await ResManager.Instance.IE_GetAsset(BundleName.Map, "GameMap", Prefab);
+        // end
+
+        // 地图的显示
+        await this.InitGameMap(jsonAsset.json, bgTex as Texture2D, mapLoadModel);
+        // end 
+
         // 测试代码, 把游戏主角创建出来, 网络里面传过来一个玩家，然后你判断以下，这个playerId 是不是我们的 自己的这个id;
-        var config = {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: enterSpawnId };
+        var config = {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: enterSpawnId, state: UnitState.idle, direction: 0 };
         this.selfPlayerEntity = await this.ecsWorld.OnPlayerEnterWorld(config);
+        // end
     }
 }
 
