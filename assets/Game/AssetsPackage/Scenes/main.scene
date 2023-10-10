@@ -29,7 +29,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 21
+      "__id__": 20
     },
     "_lpos": {
       "__type__": "cc.Vec3",
@@ -60,7 +60,7 @@
     },
     "autoReleaseAssets": false,
     "_globals": {
-      "__id__": 22
+      "__id__": 21
     },
     "_id": "847df10e-0d02-46f6-89e6-f752342d58e8"
   },
@@ -267,19 +267,19 @@
         "__id__": 10
       },
       {
-        "__id__": 13
+        "__id__": 12
       }
     ],
     "_active": true,
     "_components": [
       {
+        "__id__": 17
+      },
+      {
         "__id__": 18
       },
       {
         "__id__": 19
-      },
-      {
-        "__id__": 20
       }
     ],
     "_prefab": null,
@@ -416,9 +416,6 @@
     "_components": [
       {
         "__id__": 11
-      },
-      {
-        "__id__": 12
       }
     ],
     "_prefab": null,
@@ -474,36 +471,6 @@
     "_id": "2fgUujdHZMwJFSHzZCr/KT"
   },
   {
-    "__type__": "cc.Widget",
-    "_name": "",
-    "_objFlags": 0,
-    "__editorExtras__": {},
-    "node": {
-      "__id__": 10
-    },
-    "_enabled": true,
-    "__prefab": null,
-    "_alignFlags": 45,
-    "_target": null,
-    "_left": 0,
-    "_right": 0,
-    "_top": 0,
-    "_bottom": 0,
-    "_horizontalCenter": 0,
-    "_verticalCenter": 0,
-    "_isAbsLeft": true,
-    "_isAbsRight": true,
-    "_isAbsTop": true,
-    "_isAbsBottom": true,
-    "_isAbsHorizontalCenter": true,
-    "_isAbsVerticalCenter": true,
-    "_originalWidth": 100,
-    "_originalHeight": 100,
-    "_alignMode": 2,
-    "_lockFlags": 0,
-    "_id": "d8qayNZvhC7KTM+h+gfFCA"
-  },
-  {
     "__type__": "cc.Node",
     "_name": "FogOfWar",
     "_objFlags": 0,
@@ -513,13 +480,13 @@
     },
     "_children": [
       {
-        "__id__": 14
+        "__id__": 13
       }
     ],
     "_active": true,
     "_components": [
       {
-        "__id__": 17
+        "__id__": 16
       }
     ],
     "_prefab": null,
@@ -558,16 +525,16 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
-      "__id__": 13
+      "__id__": 12
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 15
+        "__id__": 14
       },
       {
-        "__id__": 16
+        "__id__": 15
       }
     ],
     "_prefab": null,
@@ -606,7 +573,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 14
+      "__id__": 13
     },
     "_enabled": true,
     "__prefab": null,
@@ -628,7 +595,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 14
+      "__id__": 13
     },
     "_enabled": false,
     "__prefab": null,
@@ -667,7 +634,7 @@
     "_objFlags": 0,
     "__editorExtras__": {},
     "node": {
-      "__id__": 13
+      "__id__": 12
     },
     "_enabled": true,
     "__prefab": null,
@@ -762,25 +729,25 @@
   {
     "__type__": "cc.SceneGlobals",
     "ambient": {
-      "__id__": 23
+      "__id__": 22
     },
     "shadows": {
-      "__id__": 24
+      "__id__": 23
     },
     "_skybox": {
-      "__id__": 25
+      "__id__": 24
     },
     "fog": {
-      "__id__": 26
+      "__id__": 25
     },
     "octree": {
-      "__id__": 27
+      "__id__": 26
     },
     "skin": {
-      "__id__": 28
+      "__id__": 27
     },
     "lightProbeInfo": {
-      "__id__": 29
+      "__id__": 28
     },
     "bakedWithStationaryMainLight": false,
     "bakedWithHighpLightmap": false

@@ -13,8 +13,9 @@ export enum UIView {
 } 
 
 export enum UIGameEvent {
-    UILoginSuccessReturn="UILoginSuccessReturn",
-    UITouchNav="UITouchNav",
+    UILoginSuccessReturn = "UILoginSuccessReturn",
+    UITouchNav = "UITouchNav",
+    UIChangeMap = "UIChangeMap"
 }
 
 export enum GameEvent {
@@ -25,6 +26,7 @@ export enum GameEvent {
 export enum ServerReturnEvent {
     TouchNav = 1,
     TransterEvent = 2,
+    ChangeMap = 3,
 }
 
 export enum EntityName {
