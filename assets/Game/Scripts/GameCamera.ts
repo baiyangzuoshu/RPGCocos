@@ -4,21 +4,34 @@ import MapParams from './3rd/map/base/MapParams';
 export class GameCamera extends Component {
 
     private target: Node = null!;
-
+    private xmin: number = 0;
+    private xmax: number = 0;
+    private ymin: number = 0;
+    private ymax: number = 0;
 
     public ResetCamera(spawnId, mapRoot: Node, mapParams: MapParams, mapData: any): void {
         var mapItems:object[] = mapData.mapItems;
+        var first = null;
 
         if(!mapItems) {
             return;
         }
 
+        // 计算以下我们的运动的范围
+        var wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(0, 0, 0))
+        this.xmin = wPos.x + mapParams.viewWidth * 0.5;
+        this.ymin = wPos.y + mapParams.viewHeight * 0.5;
+        
+        wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(mapParams.mapWidth, mapParams.mapHeight, 0))
+        this.xmax = wPos.x - mapParams.viewWidth * 0.5;
+        this.ymax = wPos.y - mapParams.viewHeight * 0.5;
+        // end
 
         for(var i:number = 0 ; i < mapItems.length ; i++) {
             var mapItem:any = mapItems[i];
             if(mapItem.type == "spawnPoint" && mapItem.spawnId === spawnId)  {
                 // 摆好我们的摄像机
-                var wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(mapItem.x, mapItem.y, 1000 ));
+                wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(mapItem.x, mapItem.y, 1000 ));
                 this.node.setWorldPosition(wPos);
                 // end
                 return;
@@ -35,10 +48,19 @@ export class GameCamera extends Component {
                     this.node.setWorldPosition(wPos);
                     // end
                     return;
-                } 
+                }
+                if(first === null) {
+                    first = mapItem;
+                }   
             }
         }
-        this.node.setPosition(v3(0, 0, 1000));    
+        if(first) {
+            wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(first.x, first.y, 1000));
+            this.node.setWorldPosition(wPos);
+        }
+        else {
+            this.node.setPosition(v3(0, 0, 1000));    
+        }
         
     }
 
@@ -47,11 +69,13 @@ export class GameCamera extends Component {
     }
 
     public lateUpdate(dt: number): void {
+
         if(this.target) {
             var pos = this.node.getWorldPosition();
             var playerPos = this.target.getWorldPosition();
-            pos.x = playerPos.x;
-            pos.y = playerPos.y;
+            pos.x = (this.xmin > playerPos.x) ? this.xmin : ((this.xmax < playerPos.x) ? this.xmax : playerPos.x);
+            pos.y = (this.ymin > playerPos.y) ? this.ymin : ((this.ymax < playerPos.y) ? this.ymax : playerPos.y);
+            
             this.node.setWorldPosition(pos);
         }
         
