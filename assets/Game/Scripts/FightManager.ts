@@ -103,11 +103,17 @@ export class FightManager extends Component {
     }
 
     private DeleteOtherEntity(entityId: number): void {
-
+        this.ecsWorld.RemovePlayerEntityInWorld(entityId);
     }
 
     private SelfTransferMap(mapId, spawnId): void {
+        // 删除当前场景的所有物体
+        this.ecsWorld.DestroyWorld();
+        this.selfPlayerEntity = null;
+        // end
+
         console.log(mapId, spawnId);
+        this.LoadAndGotoMap(mapId, spawnId);
     }
 
     private OnProcessTransferEvent(event): void {
@@ -116,7 +122,8 @@ export class FightManager extends Component {
 
         console.log(mapId, spawnId, event.playerId);
         if(this.selfPlayerEntity !== null) { // 先判断以下是不是自己这个玩家，如果是
-            if(this.selfPlayerEntity.enrityId === event.playerId) {
+            console.log(this.selfPlayerEntity.baseComponent.entityID , event.playerId)
+            if(this.selfPlayerEntity.baseComponent.entityID === event.playerId) {
                 this.SelfTransferMap(mapId, spawnId);
             }
             else {

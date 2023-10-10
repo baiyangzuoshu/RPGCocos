@@ -17,6 +17,10 @@ export class EntityFactory extends Component {
         EntityFactory.entityRoot = gameMap.getChildByPath("Layer/EntityLayer");
     }
 
+    public static Exit(): void {
+        EntityFactory.entityRoot = null;
+    }
+
     // 来自于网络, {playerType: 1, selectRoleId: 0, controlType: 1, controlMode: 2, x: 位置, y: 位置, state}
     public static async CreatePlayerEntity(config: any, x, y) {
         // console.log(config);
@@ -81,6 +85,10 @@ export class EntityFactory extends Component {
         return entity;
     }
 
+    public static DestoryEntityGameObject(entity): void {
+        entity.baseComponent.gameObject.destroy();
+    }
+    
     public static async CreateNPCEntity(config: any) {
         console.log("CreateNPCEntity", config);
         return null;

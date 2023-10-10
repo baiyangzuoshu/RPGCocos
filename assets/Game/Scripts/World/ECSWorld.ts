@@ -23,6 +23,49 @@ export class ECSWorld extends Component {
         warn("entityID: " + entityID + "can not find!!!")
         return null;
     }
+
+    public RemoveAllEntitiesInWorld(): void {
+        for (let key in this.playerEntities) {
+            EntityFactory.DestoryEntityGameObject(this.playerEntities[key]);
+        }
+        
+        this.playerEntities = {};
+        
+        for (let key in this.npcEntities) {
+            EntityFactory.DestoryEntityGameObject(this.npcEntities[key]);
+        }
+        this.npcEntities = {};
+        
+        for (let key in this.monsterEntities) {
+            EntityFactory.DestoryEntityGameObject(this.monsterEntities[key]);
+        }
+        this.monsterEntities = {};
+
+        for (let key in this.transferEntities) {
+            EntityFactory.DestoryEntityGameObject(this.transferEntities[key]);
+        }
+        this.transferEntities = {};
+
+        this.spawnPoints = {};
+
+
+    }
+
+    public RemovePlayerEntityInWorld(entityID: number): void {
+        if(!this.playerEntities[entityID]) {
+            return;
+        }
+
+        var entity = this.playerEntities[entityID];
+
+        // 从我们的表里移除出来
+        // this.playerEntities[entityID] = null;
+        delete this.playerEntities[entityID];
+        // end
+
+        // 释放entity的数据
+        EntityFactory.DestoryEntityGameObject(entity);
+    }
     
     private async InitMapElement(mapParams: MapParams, mapData: MapData) {
         var mapItems:object[] = mapData.mapItems;
@@ -89,10 +132,23 @@ export class ECSWorld extends Component {
         this.InitMapElement(mapParams, mapData);
         // end
     }
+    
+    public DestroyWorld(): void {
+        // 删除我们原来的节点
+        this.RemoveAllEntitiesInWorld();
+        // end
+
+        // 构造工厂清理以下
+        EntityFactory.Exit();
+        // end
+
+        this.node.destroy();
+    }
 
     // {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: 1  };
     public async OnPlayerEnterWorld(config) {
         var pos = this.GetSpwanPosition(config.enterSpawnId);
+
         var entity = await EntityFactory.CreatePlayerEntity(config, pos.x, pos.y);
         this.playerEntities[entity.baseComponent.entityID] = entity;
 
