@@ -35,9 +35,6 @@ export enum UnitState
 export class UnitComponent  {
     public state: UnitState = UnitState.none;
     public moveSpeed:number = 200;
-    public hp:number = 100;
-    public mp:number = 100;
-
     /**
      * 设置单位方向
      * 

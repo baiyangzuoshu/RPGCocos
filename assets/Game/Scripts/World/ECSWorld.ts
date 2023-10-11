@@ -9,8 +9,11 @@ import { NavSystem } from './Systems/NavSystem';
 import { TransferSystem } from './Systems/TransferSystem';
 export class ECSWorld extends Component {
     private spawnPoints = {};
+    
+    
     private playerEntities = {};
     private npcEntities = {};
+    
     private monsterEntities = {};
     private transferEntities = {};
 
@@ -66,7 +69,7 @@ export class ECSWorld extends Component {
         // 释放entity的数据
         EntityFactory.DestoryEntityGameObject(entity);
     }
-    
+
     private async InitMapElement(mapParams: MapParams, mapData: MapData) {
         var mapItems:object[] = mapData.mapItems;
 
@@ -77,22 +80,28 @@ export class ECSWorld extends Component {
         for(var i:number = 0 ; i < mapItems.length ; i++)
         {
             var mapItem:any = mapItems[i];
-            if(mapItem.type == MapItemType.spawnPoint)  {
+            if(mapItem.type == "spawnPoint")  {
                 this.spawnPoints[mapItem.spawnId] = mapItem;
                 continue;
             }
 
             var entity = null;
 
-            if(mapItem.type == MapItemType.npc) {
-                entity = EntityFactory.CreateNPCEntity(mapItem);
+            if(mapItem.type == "npc") {
+                entity = await EntityFactory.CreateNPCEntity(mapItem);
+                if(entity === null) {
+                    continue;
+                }
                 this.npcEntities[entity.baseComponent.entityID] = entity;
             }
-            else if(mapItem.type == MapItemType.monster) {
-                entity = EntityFactory.CreateMonestEntity(mapItem);
+            else if(mapItem.type == "monster") {
+                entity = await EntityFactory.CreateMonestEntity(mapItem);
+                if(entity === null) {
+                    continue;
+                }
                 this.monsterEntities[entity.baseComponent.entityID] = entity;
             }
-            else if(mapItem.type == MapItemType.transfer) {
+            else if(mapItem.type == "transfer") {
                 entity = await EntityFactory.CreateTransferEntity(mapItem);
                 this.transferEntities[entity.baseComponent.entityID] = entity;
             }
@@ -102,12 +111,16 @@ export class ECSWorld extends Component {
 
     public GetSpwanPosition(spawnId): any {
         var config = null;
+        var first = null;
 
         if(this.spawnPoints[spawnId]) {
             config = this.spawnPoints[spawnId];
         }
         else {
             for (let key in this.spawnPoints) {
+                if(this.spawnPoints[key] && first === null) {
+                    first = this.spawnPoints[key];
+                }
                 if(this.spawnPoints[key].defaultSpawn === true) {
                     config = this.spawnPoints[key];
                     break;
@@ -115,24 +128,27 @@ export class ECSWorld extends Component {
             }
         }
 
-        // console.log(config);
         if(config === null) {
-            return {x: 0, y: 0};
+            config = first;
+        }
+
+        if(config === null) {
+            return { x: 0, y: 0 };
         }
 
         return { x: config.x, y: config.y };
     }
 
-    public Init(mapParams: MapParams, mapData: MapData): void {
+    public async Init(mapParams: MapParams, mapData: MapData) {
         // 
         EntityFactory.Init(this.node);
         // end
 
         // 读取我们的地图数据的内容,把一些我们的物体的Enity给他创建出来，并管理好;
-        this.InitMapElement(mapParams, mapData);
+        await this.InitMapElement(mapParams, mapData);
         // end
     }
-    
+
     public DestroyWorld(): void {
         // 删除我们原来的节点
         this.RemoveAllEntitiesInWorld();
@@ -163,6 +179,10 @@ export class ECSWorld extends Component {
             // 我们单机游戏，玩家只有一个，所以我们遍历所有玩家列表;
             for(let playerKey in this.playerEntities) {
                 var playerEntity = this.playerEntities[playerKey];
+                
+                if(playerEntity === null) {
+                    continue;
+                }
 
                 TransferSystem.Update(trasferEntity.transferComponent,
                     trasferEntity.transformComponent, 
@@ -173,7 +193,7 @@ export class ECSWorld extends Component {
             }
         }
     }
-    
+
     private NavSystemUpdate(dt: number): void {
         for (let key in this.playerEntities) {
             if(!this.playerEntities[key]) {
@@ -214,6 +234,7 @@ export class ECSWorld extends Component {
         // 导航的迭代
         this.NavSystemUpdate(dt);
         // end
+
         // 模拟服务器上的传送门的迭代计算
         this.SimTrasferUpdate(dt);
         // end
