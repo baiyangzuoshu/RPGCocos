@@ -18,6 +18,7 @@ export enum UIGameEvent {
     UISwitchRole = "UISwitchRole",
     UILoginOut = "UILoginOut",
     UILoginIn = "UILoginIn",
+    UIJoystick = "UIJoystick",
 }
 
 export enum GameEvent {
@@ -32,6 +33,7 @@ export enum ServerReturnEvent {
     SwitchRole = 4, // 切换角色
     LoginInRet = 5, // 登入游戏
     LoginOutRet = 6, // 登出游戏
+    JoystickEvent = 7, // 摇杆事件
 }
 
 export enum EntityName {

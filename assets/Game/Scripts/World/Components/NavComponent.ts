@@ -1,3 +1,4 @@
+import { Vec2 } from "cc";
 import RoadNode from "../../3rd/map/road/RoadNode";
 
 export class NavComponent {
@@ -10,7 +11,8 @@ export class NavComponent {
     vy: number = 0; // vy 方向上的速度;
     walkTime: number = 0; // 行走的时间你要走多久;
     passedTime: number = 0; // 行走的过去的时间
-     
+    
+    joyStickDir: Vec2 = null; // 为 null;
 }
 
 

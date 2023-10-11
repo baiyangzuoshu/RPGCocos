@@ -34,21 +34,18 @@ export class FightManager extends Component {
     private fightEventProcess = {};
 
     protected onLoad(): void {
-        if(FightManager.Instance !== null) {
-            this.destroy();
-            return;
-        }
-
         FightManager.Instance = this;
     }
 
     private InitUIEventListeners(): void {
+        EventManager.Instance.AddEventListener(UIGameEvent.UIJoystick, this.OnUIJoystickEvent, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UISwitchRole, this.OnUISwitchRole, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
     }
 
     private InitReturnEventListeners(): void {
+        this.fightEventProcess[ServerReturnEvent.JoystickEvent] = this.OnProcessJoystickEvent;
         this.fightEventProcess[ServerReturnEvent.SwitchRole] = this.OnProcessSwitchRoleEvent;
         this.fightEventProcess[ServerReturnEvent.ChangeMap] = this.OnProcessChangeMapEvent;
         this.fightEventProcess[ServerReturnEvent.TouchNav] = this.OnProcessNavEvent;
@@ -56,6 +53,7 @@ export class FightManager extends Component {
     }
 
     private RemoveUIEventListeners(): void {
+        EventManager.Instance.AddEventListener(UIGameEvent.UIJoystick, this.OnUIJoystickEvent, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UISwitchRole, this.OnUISwitchRole, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
@@ -65,6 +63,27 @@ export class FightManager extends Component {
     protected onDestroy(): void {
         // console.log("onDestroy exit &&&&&&&&&");
         this.RemoveUIEventListeners();
+    }
+
+    private OnUIJoystickEvent(eventName: string, udata: any): void {
+        var dir: Vec2 = udata as Vec2;
+
+        // 发往服务器，让服务器来验证，验证通过以后，返回给客户端
+        // end
+
+        // 模拟发送一个网络事件给这个客户端，让我们的游戏来处理摇杆
+        // {eventType: 类型,  playerId: xxxx, dir: }
+        if(this.selfPlayerEntity === null) { // 测试代码
+            return;
+        }
+
+        var serverRetData = {
+            eventType: ServerReturnEvent.JoystickEvent,
+            playerId: this.selfPlayerEntity.baseComponent.entityID, 
+            dir: dir,
+        };
+        EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverRetData);
+        // end
     }
 
     private OnUISwitchRole(): void {
@@ -138,6 +157,20 @@ export class FightManager extends Component {
         }
     }
 
+    private OnProcessJoystickEvent(event): void {
+        var entity = this.ecsWorld.GetPlayerEntityByID(event.playerId);
+        if(!entity) { // 哪个玩家有摇杆操作;
+            return;
+        }
+
+        if(event.dir.x === 0 && event.dir.y === 0) {
+            NavSystem.StopAction(entity.navComponent);    
+            return;
+        }
+        
+        NavSystem.StartNavJoystickAction(event.dir, entity.navComponent, entity.unitComponent, entity.baseComponent);
+    }
+
     // {eventType: 类型,  roleId: 1, playerId: xxxx}
     private OnProcessSwitchRoleEvent(event): void {
         var roleId = event.roleId;
@@ -190,7 +223,7 @@ export class FightManager extends Component {
             return;
         }
 
-        NavSystem.StartAction(roadNodeArr, entity.navComponent, entity.unitComponent);
+        NavSystem.StartNavTouchAction(roadNodeArr, entity.navComponent);
        
     }
 

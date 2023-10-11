@@ -42,8 +42,8 @@ export class GameController extends Component {
         await SceneManager.Instance.IE_RunScene("Main");
         // end
  
-        var _FightManager = find("MapCanvas").addComponent(FightManager);
-        _FightManager.Init();
+        var fightMgr = find("MapCanvas").addComponent(FightManager);
+        fightMgr.Init();
  
         // 预先加载GameUI
         await ResManager.Instance.IE_GetAsset(BundleName.GUI, UIView.UIGame, Prefab);
