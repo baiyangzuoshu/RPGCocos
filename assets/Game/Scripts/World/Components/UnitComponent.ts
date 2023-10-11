@@ -1,3 +1,4 @@
+import { UIOpacity } from "cc";
 import MovieClip from "../../Utils/MovieClip";
 
 /**
@@ -50,6 +51,7 @@ export class UnitComponent  {
     public direction:number = 0;
 
     public movieClip: MovieClip = null;
+    public uiOpacity: UIOpacity = null;
 }
 
 

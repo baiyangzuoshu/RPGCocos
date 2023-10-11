@@ -80,6 +80,13 @@ export class RandomUtils {
         return array;
     }
 
+    public static Range(num1:number,num2:number) {
+        if(num2 > num1) {
+            return Math.random() * (num2 - num1) + num1;
+        }
+        return Math.random() * (num1 - num2) + num2;
+    }
+
     public static getRandomInt (min: number, max: number) {
         var r = Math.random();
         var rr = r * (max - min + 1) + min;

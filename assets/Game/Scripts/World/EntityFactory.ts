@@ -1,9 +1,11 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label, BoxCollider, SphereCollider, Texture2D, v3 } from 'cc';
+import { _decorator, Component, Node, Prefab, instantiate, Label, BoxCollider, SphereCollider, Texture2D, v3, UIOpacity } from 'cc';
 import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
 import EntityLayer from '../3rd/map/layer/EntityLayer';
 import { BundleName, EntityName } from '../Constants';
 import MovieClip from '../Utils/MovieClip';
 import { EntityType } from './Components/BaseComponent';
+import { NavComponent } from './Components/NavComponent';
+import { PatrolAIComponent } from './Components/PatrolAIComponent';
 import { RectShapeComponent, RoundShapeComponent, ShapeType } from './Components/ShapeComponent';
 import { UnitState } from './Components/UnitComponent';
 import { NPCEntity } from './Entities/NPCEntity';
@@ -33,15 +35,17 @@ export class EntityFactory {
         // var prefabNameArray = ["Prefabs/TransferDoor1", "Prefabs/TransferDoor2", "Prefabs/TransferDoor3"];
         var pefabName = "Prefabs/Player_" + roleId;
         var prefab = await ResManager.Instance.IE_GetAsset(BundleName.Charactors, pefabName, Prefab);
-        entity.baseComponent.gameObject = instantiate(prefab) as unknown as Node;
+        var gameObject = instantiate(prefab) as unknown as Node;
         // entity.baseComponent.gameObject.getChildByName("NameTxt").getComponent(Label).string = config.objName;
-        EntityFactory.entityRoot.addChild(entity.baseComponent.gameObject);
-        entity.baseComponent.gameObject.setPosition(entity.transformComponent.pos);
+        EntityFactory.entityRoot.addChild(gameObject);
+        gameObject.setPosition(entity.transformComponent.pos);
+        entity.baseComponent.gameObject = gameObject;
         // end
 
         // UnitComponent, 从配置文件里面读,
         var prevState = entity.unitComponent.state;
         entity.unitComponent.state = UnitState.none;
+        entity.unitComponent.uiOpacity = gameObject.getComponent(UIOpacity);
         EntityUtils.SetEntityState(prevState, entity.unitComponent, entity.baseComponent);
         EntityUtils.SetEntityDirection(entity.unitComponent.direction, entity.unitComponent, entity.baseComponent)
         // end
@@ -133,6 +137,7 @@ export class EntityFactory {
         EntityFactory.entityRoot.addChild(gameObject);
         gameObject.setPosition(v3(config.x, config.y, 0));
 
+        entity.unitComponent.uiOpacity = gameObject.getComponent(UIOpacity);
         entity.unitComponent.movieClip = gameObject.getComponentInChildren(MovieClip);
         entity.unitComponent.movieClip.init(tex as Texture2D, 5, 12);
         entity.baseComponent.gameObject = gameObject;
@@ -152,6 +157,21 @@ export class EntityFactory {
         entity.shapeComponent.shape.height = (tex as Texture2D).height / 12;
         // end
 
+        if(!entity.npcComponent.isPatrol) {
+            return entity;
+        }
+        
+        // nav
+        entity.navComponent = new NavComponent();
+        // end
+
+        // AI Partrol
+        entity.patrolAIComponent = new PatrolAIComponent();
+        entity.patrolAIComponent.patrolRange = 200;
+        entity.patrolAIComponent.lastTime = 3.5;
+        entity.patrolAIComponent.isStopPatrol = false;
+        // end
+        
         return entity;
     }
 

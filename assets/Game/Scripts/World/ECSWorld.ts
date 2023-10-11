@@ -5,9 +5,13 @@ import { MapItemType } from '../Constants';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { TransferEntity } from './Entities/TransferEntity';
 import { EntityFactory } from './EntityFactory';
+import { EntityAlphaSystem } from './Systems/EntityAlphaSystem';
 import { NavSystem } from './Systems/NavSystem';
+import { PatrolAISystem } from './Systems/PatrolAISystem';
 import { TransferSystem } from './Systems/TransferSystem';
+
 export class ECSWorld extends Component {
+
     private spawnPoints = {};
     
     
@@ -224,15 +228,85 @@ export class ECSWorld extends Component {
                                       this.monsterEntities[key].transformComponent,
                                       this.monsterEntities[key].baseComponent);
         }
+
+        for (let key in this.npcEntities) {
+            if(!this.npcEntities[key] || !this.npcEntities[key].npcComponent.isPatrol) {
+                continue;
+            }
+
+            if(this.npcEntities[key].navComponent.isWalking === false) {
+                continue;
+            }
+
+            NavSystem.Update(dt, this.npcEntities[key].navComponent, 
+                                      this.npcEntities[key].unitComponent, 
+                                      this.npcEntities[key].transformComponent,
+                                      this.npcEntities[key].baseComponent);
+        }
+    }
+
+    private PatrolAISystemUpdate(dt: number): void {
+        for (let key in this.npcEntities) {
+            if(!this.npcEntities[key]) {
+                continue;
+            }
+
+            if(this.npcEntities[key].npcComponent.isPatrol == false) {
+                continue;
+            }
+
+            PatrolAISystem.Update(dt, this.npcEntities[key].npcComponent, 
+                                    this.npcEntities[key].patrolAIComponent,
+                                    this.npcEntities[key].navComponent,
+                                    this.npcEntities[key].transformComponent, this.npcEntities[key].unitComponent);
+        }
+    }
+
+    private EntityAlphaSystemUpdate(): void {
+        for (let key in this.playerEntities) {
+            if(!this.playerEntities[key]) {
+                continue;
+            }
+
+            if(this.playerEntities[key].navComponent.isWalking === false) {
+                continue;
+            }
+
+            EntityAlphaSystem.Update(this.playerEntities[key].unitComponent, 
+                                    this.playerEntities[key].transformComponent);
+        }
+
+        for (let key in this.monsterEntities) {
+            if(!this.monsterEntities[key]) {
+                continue;
+            }
+
+            EntityAlphaSystem.Update(this.monsterEntities[key].unitComponent, 
+                                    this.monsterEntities[key].transformComponent);
+        }
+
+        for (let key in this.npcEntities) {
+            if(!this.npcEntities[key]) {
+                continue;
+            }
+
+            EntityAlphaSystem.Update(this.npcEntities[key].unitComponent, 
+                                     this.npcEntities[key].transformComponent);
+        }
     }
 
     protected update(dt: number): void {
 
         // AI System的迭代
+        this.PatrolAISystemUpdate(dt);
         // end
 
         // 导航的迭代
         this.NavSystemUpdate(dt);
+        // end
+
+        // 透明度的迭代
+        this.EntityAlphaSystemUpdate();
         // end
 
         // 模拟服务器上的传送门的迭代计算
