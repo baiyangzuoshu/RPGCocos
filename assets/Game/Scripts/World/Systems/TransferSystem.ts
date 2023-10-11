@@ -5,6 +5,7 @@ import { TransferComponent } from "../Components/TransferComponent";
 import { TransformComponent } from "../Components/TransformComponent";
 import { GameEvent, ServerReturnEvent } from "../../Constants";
 import { EventManager } from "../../../../Framework/Scripts/Managers/EventManager";
+import { TimerManager } from "../../../../Framework/Scripts/Managers/TimerManager";
 
 export class TransferSystem {
     
@@ -31,13 +32,14 @@ export class TransferSystem {
             rhs.size = size((entityShapeComponent.shape as RectShapeComponent).width, (entityShapeComponent.shape as RectShapeComponent).height);
 
             if(lhs.intersects(rhs)) { // entity来到了传送门, 如果是网络游戏，这个代码放服务器，就要发网络消息給客户端
-                // 模拟发送一个事件給客户端(FightMgr);
-                var enrityId = entityBaseComponent.entityID;
-                var mapId = transferComponent.targetMapId;
-                var spawnId = transferComponent.targetMapSpawnId;
-                EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TransterEvent, playerId: enrityId, mapId: mapId, spawnId: spawnId});
-                // end
-                
+                TimerManager.Instance.ScheduleOnce(()=>{
+                    // 模拟发送一个事件給客户端(FightMgr);
+                    var enrityId = entityBaseComponent.entityID;
+                    var mapId = transferComponent.targetMapId;
+                    var spawnId = transferComponent.targetMapSpawnId;
+                    EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TransterEvent, playerId: enrityId, mapId: mapId, spawnId: spawnId});
+                    // end
+                }, this, 0.00001);
             }
         }
     }

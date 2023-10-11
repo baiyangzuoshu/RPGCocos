@@ -57,8 +57,6 @@ export class Boot extends Component {
         // 自定义事件订阅与发布模块
         this.node.addComponent(EventManager).Init();
         // end
-        //游戏导航器的初始化
-        this.node.addComponent(GameController).Init();
         
         // 初始化UI框架
         this.node.addComponent(UIManager).Init();

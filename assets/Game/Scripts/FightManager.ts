@@ -13,6 +13,7 @@ import { GameCamera } from './GameCamera';
 import { MapViewLoader } from './MapViewLoader';
 import { UnitState } from './World/Components/UnitComponent';
 import { ECSWorld } from './World/ECSWorld';
+import { EntityFactory } from './World/EntityFactory';
 import { NavSystem } from './World/Systems/NavSystem';
 const { ccclass, property } = _decorator;
 
@@ -30,7 +31,7 @@ export class FightManager extends Component {
 
     private ecsWorld: ECSWorld = null!;
     
-    private gameEventProcess = {};
+    private fightEventProcess = {};
 
     protected onLoad(): void {
         if(FightManager.Instance !== null) {
@@ -43,23 +44,51 @@ export class FightManager extends Component {
 
     private InitUIEventListeners(): void {
         EventManager.Instance.AddEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
+        EventManager.Instance.AddEventListener(UIGameEvent.UISwitchRole, this.OnUISwitchRole, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
     }
 
     private InitReturnEventListeners(): void {
-        this.gameEventProcess[ServerReturnEvent.ChangeMap] = this.OnProcessChangeMapEvent;
-        this.gameEventProcess[ServerReturnEvent.TouchNav] = this.OnProcessNavEvent;
-        this.gameEventProcess[ServerReturnEvent.TransterEvent] = this.OnProcessTransferEvent;
+        this.fightEventProcess[ServerReturnEvent.SwitchRole] = this.OnProcessSwitchRoleEvent;
+        this.fightEventProcess[ServerReturnEvent.ChangeMap] = this.OnProcessChangeMapEvent;
+        this.fightEventProcess[ServerReturnEvent.TouchNav] = this.OnProcessNavEvent;
+        this.fightEventProcess[ServerReturnEvent.TransterEvent] = this.OnProcessTransferEvent;
     }
 
     private RemoveUIEventListeners(): void {
+        EventManager.Instance.RemoveEventListener(UIGameEvent.UISwitchRole, this.OnUISwitchRole, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
     }
 
+    
     protected onDestroy(): void {
+        // console.log("onDestroy exit &&&&&&&&&");
         this.RemoveUIEventListeners();
-        EventManager.Instance.RemoveEventListener(GameEvent.NetServerRetEvent, this.OnServerEventReturn, this);
+    }
+
+    private OnUISwitchRole(): void {
+        // 要发往服务器,服务器同意你才可以切换你的RoleId;
+        // end
+        
+        // 模拟服务器的消息回来
+        // {eventType: 类型,  roleId: 1, playerId: xxxx}
+        if(this.selfPlayerEntity === null) {
+            return;
+        }
+
+        var roleId: number = this.selfPlayerEntity.roleComponent.roleId;
+        roleId ++;
+        roleId = (roleId > 11) ? 1 : roleId;
+
+        var serverData = {
+            eventType: ServerReturnEvent.SwitchRole,
+            roleId: roleId,
+            playerId: this.selfPlayerEntity.baseComponent.entityID, 
+        };
+        EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverData);
+        // end
+
     }
 
     private OnUIChangeMap(eventName: string, udata): void {
@@ -102,13 +131,31 @@ export class FightManager extends Component {
     // {eventType: 1, pos: , playerId, ... }
     // {eventType: 传送带事件, playerId: xxxx, mapId: 1, spawnId: xxxx,}
     // 
-    private OnServerEventReturn(eventName: string, event: any): void {
-        var func = this.gameEventProcess[event.eventType];
-        if(!func) {
-            warn("eventType: " + event.eventType + " has no Handler !!!!");
+    public OnServerEventReturn(eventName: string, event: any): void {
+        var func = this.fightEventProcess[event.eventType];
+        if(func) {
+            func.call(this, event);    
+        }
+    }
+
+    // {eventType: 类型,  roleId: 1, playerId: xxxx}
+    private OnProcessSwitchRoleEvent(event): void {
+        var roleId = event.roleId;
+        var playerId = event.playerId; 
+
+        var player = this.ecsWorld.GetPlayerEntityByID(event.playerId);
+        if(!player) {
             return;
         }
-        func.call(this, event);
+
+        var node = player.baseComponent.gameObject
+        if(node === null) {
+            return;
+        }
+        node.destroy();
+        player.baseComponent.gameObject = null;
+        player.unitComponent.movieClip = null;
+        EntityFactory.SwitchRole(player, roleId);
     }
 
     private OnProcessChangeMapEvent(event): void {
@@ -151,18 +198,21 @@ export class FightManager extends Component {
         this.ecsWorld.RemovePlayerEntityInWorld(entityId);
     }
 
-    private SelfTransferMap(mapId, spawnId): void {
-        if(this.mapId == mapId) {
-            return;
-        }
+    public ClearFightScene(): void {
         this.gameCamrea.BindTarget(null);
         // 删除当前场景的所有物体
         this.ecsWorld.DestroyWorld();
         this.selfPlayerEntity = null;
+    }
+
+    private SelfTransferMap(mapId, spawnId): void {
+        if(this.mapId == mapId) {
+            return;
+        }
+        // 删除当前场景的所有物体
+        this.ClearFightScene();
         // end
-
         console.log(mapId, spawnId);
-
         this.LoadAndGotoMap(mapId, spawnId);
     }
 
@@ -201,11 +251,6 @@ export class FightManager extends Component {
 
         this.InitUIEventListeners();
         this.InitReturnEventListeners();   
-
-        // 单机游戏，添加一个事件监听，模拟网络游戏
-        // 如果网络游戏，由网络事件模块，来调用这个接口;
-        EventManager.Instance.AddEventListener(GameEvent.NetServerRetEvent, this.OnServerEventReturn, this);
-        // end
     }
 
     public GetMapParams(mapData:MapData,bgTex:Texture2D,mapLoadModel:MapLoadModel = 1):MapParams
@@ -316,7 +361,7 @@ export class FightManager extends Component {
 
         // 调整我们的摄像机的位置
         if(DeviceParams.winSize.width < this.mapParams.mapWidth || DeviceParams.winSize.height < this.mapParams.mapHeight) {
-            this.gameCamrea.BindTarget(this.selfPlayerEntity.baseComponent.gameObject);
+            this.gameCamrea.BindTarget(this.selfPlayerEntity);
         }
         else {
             this.gameCamrea.BindTarget(null);

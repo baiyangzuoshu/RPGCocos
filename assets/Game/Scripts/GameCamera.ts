@@ -1,9 +1,10 @@
 import { Component, Node, UITransform, Vec3, v3 } from 'cc';
 import MapParams from './3rd/map/base/MapParams';
+import { PlayerEntity } from './World/Entities/PlayerEntity';
 
 export class GameCamera extends Component {
 
-    private target: Node = null!;
+    private target: PlayerEntity = null!;
     private xmin: number = 0;
     private xmax: number = 0;
     private ymin: number = 0;
@@ -64,15 +65,15 @@ export class GameCamera extends Component {
         
     }
 
-    public BindTarget(target: Node): void {
+    public BindTarget(target: PlayerEntity): void {
         this.target = target;
     }
 
     public lateUpdate(dt: number): void {
 
-        if(this.target) {
+        if(this.target && this.target.baseComponent.gameObject !== null) {
             var pos = this.node.getWorldPosition();
-            var playerPos = this.target.getWorldPosition();
+            var playerPos = this.target.baseComponent.gameObject.getWorldPosition();
             pos.x = (this.xmin > playerPos.x) ? this.xmin : ((this.xmax < playerPos.x) ? this.xmax : playerPos.x);
             pos.y = (this.ymin > playerPos.y) ? this.ymin : ((this.ymax < playerPos.y) ? this.ymax : playerPos.y);
             

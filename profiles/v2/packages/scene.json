@@ -467,10 +467,28 @@
         "y": 0,
         "z": 0
       }
+    },
+    "7e+0qg4FtCMox7VbY93YpI": {
+      "position": {
+        "x": 620.6540130180808,
+        "y": 322.6196428221508,
+        "z": 5000
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "w": 1
+      },
+      "viewCenter": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      }
     }
   },
   "camera-uuids": [
-    "847df10e-0d02-46f6-89e6-f752342d58e8"
+    "7e+0qg4FtCMox7VbY93YpI"
   ],
   "camera": {
     "fov": 45,

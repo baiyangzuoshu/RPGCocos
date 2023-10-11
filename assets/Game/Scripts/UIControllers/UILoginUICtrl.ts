@@ -9,41 +9,33 @@ import { GameController } from '../GameController';
 const { ccclass, property } = _decorator;
 @ccclass('UILoginUICtrl')
 export class UILoginUICtrl extends UIComponent {
-    private accountEditBox: EditBox = null!;
-    private passwordEditBox: EditBox = null!;
+    private unameEditor: EditBox = null;
+    private upwdEditor: EditBox = null;
 
-    start() {
-        this.accountEditBox = this.ViewComponent<EditBox>("LoginView/Content/EditField_Account/EditBox", EditBox);
-        this.passwordEditBox = this.ViewComponent<EditBox>("LoginView/Content/EditField_Password/EditBox", EditBox);
+    
+    protected start(): void {
+        this.unameEditor = this.ViewComponent("LoginView/Content/EditField_Account/EditBox", EditBox);
+        this.upwdEditor = this.ViewComponent("LoginView/Content/EditField_Password/EditBox", EditBox);
 
-        this.AddButtonListener("LoginView/Content/LoginBtn", this, this.OnClickLogin);
-        this.AddButtonListener("LoginView/Content/RegisterBtn", this, this.OnClickRegist);
+        this.AddButtonListener("LoginView/Content/LoginBtn", this, this.OnGameLogin);
+        this.AddButtonListener("LoginView/Content/RegisterBtn", this, this.OnGameRegister);
     }
 
-    private async OnClickLogin() {
-        console.log("OnClickLogin");
-        console.log("account:", this.accountEditBox.string);
-        console.log("password:", this.passwordEditBox.string);
-        //显示加载界面
-        await UIManager.Instance.IE_ShowUIView(UIView.UILoading,null,BundleName.GUI);
+    private async OnGameLogin() {
+        // 发送给服务器, 服务器给你回一个Success
+        await UIManager.Instance.IE_ShowUIView(UIView.UILoading);
         UIManager.Instance.DestroyUIView(UIView.UILogin);
+        // end
 
-        EventManager.Instance.Emit(UIGameEvent.UILoginSuccessReturn, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
+        // 给一个状态，如果正在登录中，就屏蔽掉，不让它点击;
+        var uname = this.unameEditor.string;
+        var upwd = this.upwdEditor.string;
+        EventManager.Instance.Emit(UIGameEvent.UILoginIn, {uname: uname, upwd: upwd});
+        // end
     }
 
-    private async OnClickRegist() {
-        console.log("OnClickRegist");
-        console.log("account:", this.accountEditBox.string);
-        console.log("password:", this.passwordEditBox.string);
-        //显示加载界面
-        await UIManager.Instance.IE_ShowUIView(UIView.UILoading,null,BundleName.GUI);
-        UIManager.Instance.DestroyUIView(UIView.UILogin);
-        
-        EventManager.Instance.Emit(UIGameEvent.UILoginSuccessReturn, {mapId:"10001",enterSpawnId:0,mapLoadModel:MapLoadModel.single});
-    }
+    private OnGameRegister(): void {
 
-    update(deltaTime: number) {
-        
     }
 }
 

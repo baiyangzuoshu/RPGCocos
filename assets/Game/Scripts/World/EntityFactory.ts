@@ -21,6 +21,37 @@ export class EntityFactory extends Component {
         EntityFactory.entityRoot = null;
     }
 
+    public static async SwitchRole(entity: PlayerEntity, roleId) {
+
+        entity.roleComponent.roleId = roleId;
+                // 创建我们的entity对应的节点
+        // var prefabNameArray = ["Prefabs/TransferDoor1", "Prefabs/TransferDoor2", "Prefabs/TransferDoor3"];
+        var pefabName = "Prefabs/Player_" + roleId;
+        var prefab = await ResManager.Instance.IE_GetAsset(BundleName.Charactors, pefabName, Prefab);
+        entity.baseComponent.gameObject = instantiate(prefab) as unknown as Node;
+        // entity.baseComponent.gameObject.getChildByName("NameTxt").getComponent(Label).string = config.objName;
+        EntityFactory.entityRoot.addChild(entity.baseComponent.gameObject);
+        entity.baseComponent.gameObject.setPosition(entity.transformComponent.pos);
+        // end
+
+        // UnitComponent, 从配置文件里面读,
+        var prevState = entity.unitComponent.state;
+        entity.unitComponent.state = UnitState.none;
+        EntityUtils.SetEntityState(prevState, entity.unitComponent, entity.baseComponent);
+        EntityUtils.SetEntityDirection(entity.unitComponent.direction, entity.unitComponent, entity.baseComponent)
+        // end
+
+        // ShapeComponent
+        var b = entity.baseComponent.gameObject.getChildByName("FootTrigger").getComponent(BoxCollider)
+        if(b) {
+            entity.shapeComponent.type = ShapeType.Rect;
+            entity.shapeComponent.shape = new RectShapeComponent();
+            entity.shapeComponent.shape.width = b.size.x;
+            entity.shapeComponent.shape.height = b.size.y;
+        }
+        // end
+    }
+
     // 来自于网络, {playerType: 1, selectRoleId: 0, controlType: 1, controlMode: 2, x: 位置, y: 位置, state}
     public static async CreatePlayerEntity(config: any, x, y) {
         // console.log(config);
@@ -78,21 +109,26 @@ export class EntityFactory extends Component {
             entity.shapeComponent.shape.width = b.size.x;
             entity.shapeComponent.shape.height = b.size.y;
 
-            console.log(entity.shapeComponent.shape);
+            // console.log(entity.shapeComponent.shape);
         }
         // end
 
         return entity;
     }
 
+    
     public static DestoryEntityGameObject(entity): void {
         entity.baseComponent.gameObject.destroy();
     }
-    
+
+
+
     public static async CreateNPCEntity(config: any) {
         console.log("CreateNPCEntity", config);
         return null;
     }
+
+
 
     public static async CreateMonestEntity(config: any) {
         console.log("CreateMonestEntity", config);
@@ -112,7 +148,7 @@ export class EntityFactory extends Component {
         // end
 
         // TransferComponet
-        entity.transferComponent.targetMapId = config.targetMapId;
+        entity.transferComponent.targetMapId = config.targetMapId.toString();
         entity.transferComponent.targetMapSpawnId = config.targetMapSpawnId;
         entity.transferComponent.transferType = config.transferType;        
         // end
@@ -146,7 +182,7 @@ export class EntityFactory extends Component {
                 entity.shapeComponent.shape.radius = c.radius; 
             }
         }
-        console.log(entity.shapeComponent.shape);
+        // console.log(entity.shapeComponent.shape);
         // end
 
         return entity;

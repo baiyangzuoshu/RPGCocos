@@ -92,7 +92,7 @@ export class NavSystem {
         pos.y += (navComponent.vy * dt);
 
         // 同步节点的位置, gameObject
-        baseComponent.gameObject.setPosition(pos);
+        baseComponent.gameObject?.setPosition(pos);
         // end
     }
 }
