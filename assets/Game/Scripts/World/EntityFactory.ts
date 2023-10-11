@@ -1,5 +1,6 @@
 import { _decorator, Component, Node, Prefab, instantiate, Label, BoxCollider, SphereCollider, Texture2D, v3 } from 'cc';
 import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
+import EntityLayer from '../3rd/map/layer/EntityLayer';
 import { BundleName, EntityName } from '../Constants';
 import MovieClip from '../Utils/MovieClip';
 import { EntityType } from './Components/BaseComponent';
@@ -11,13 +12,14 @@ import { TransferEntity } from './Entities/TransferEntity';
 import { EntityUtils } from './EntityUtils';
 const { ccclass, property } = _decorator;
 
-export class EntityFactory extends Component {
+export class EntityFactory {
     public static autoID: number = 1;
     public static entityRoot: Node = null;
     
 
     public static Init(gameMap: Node): void {
         EntityFactory.entityRoot = gameMap.getChildByPath("Layer/EntityLayer");
+        EntityFactory.entityRoot.addComponent(EntityLayer);
     }
 
     public static Exit(): void {
@@ -121,11 +123,6 @@ export class EntityFactory extends Component {
         entity.npcComponent.funcId = config.funcId;
         // end 
 
-        // unitComponent
-        entity.unitComponent.state = config.state;
-        entity.unitComponent.direction = config.direction;
-        // end
-
         // 创建我们的Cocos Node
         var pefabName = "Prefabs/NPC";
         var prefab = await ResManager.Instance.IE_GetAsset(BundleName.Charactors, pefabName, Prefab);
@@ -139,6 +136,13 @@ export class EntityFactory extends Component {
         entity.unitComponent.movieClip = gameObject.getComponentInChildren(MovieClip);
         entity.unitComponent.movieClip.init(tex as Texture2D, 5, 12);
         entity.baseComponent.gameObject = gameObject;
+        // end
+
+        // unitComponent
+        entity.unitComponent.state = UnitState.none;
+        entity.unitComponent.direction = config.direction;
+        EntityUtils.SetEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent);
+        EntityUtils.SetEntityDirection(entity.unitComponent.direction, entity.unitComponent, entity.baseComponent)
         // end
 
         // ShapeComponent
@@ -210,6 +214,9 @@ export class EntityFactory extends Component {
 
         return entity;
     }
+
+
+
 }
 
 
