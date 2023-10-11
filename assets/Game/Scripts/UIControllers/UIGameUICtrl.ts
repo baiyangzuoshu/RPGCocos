@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EventTouch, Vec2, v2 } from 'cc';
+import { _decorator, Component, Node, EventTouch, Vec2, v2, Vec3, v3, UITransform } from 'cc';
 import { EventManager } from '../../../Framework/Scripts/Managers/EventManager';
 import { UIComponent } from '../../../Framework/Scripts/UI/UIComponent';
 import { UIGameEvent } from '../Constants';
@@ -7,9 +7,15 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIGameUICtrl')
 export class UIGameUICtrl extends UIComponent {
+    private joystick: Node = null;
+    private stick: Node = null;
+
     private controlMode: ControlMode = ControlMode.joystick;
     private startPos: Vec2 = null;
     private endPos: Vec2 = null;
+    private maxR: number = 80;
+
+    private uiTransform: UITransform = null;
 
     public static name2MapName = {
         "MapItem1": "10001",
@@ -22,6 +28,11 @@ export class UIGameUICtrl extends UIComponent {
     start(): void {
         var node = this.ViewNode("TouchPlane");
 
+        this.joystick = this.ViewNode("Joystick");
+        this.joystick.active = false;
+        this.stick = this.joystick.getChildByName("Stick");
+
+        this.uiTransform = this.node.getComponent(UITransform);
         // 摇杆的事件
         node.on(Node.EventType.TOUCH_START, this.onTouchStartEvent,this);
         node.on(Node.EventType.TOUCH_MOVE, this.onTouchMoveEvent,this);
@@ -59,9 +70,14 @@ export class UIGameUICtrl extends UIComponent {
         this.endPos = event.getUILocation();
         var dir = v2();
         Vec2.subtract(dir, this.endPos, this.startPos);
+        var len = dir.length();
+        len = (len > this.maxR) ? this.maxR : len;
         dir = dir.normalize(); // dir.x = cos(r), dir.y = sin(r)
         EventManager.Instance.Emit(UIGameEvent.UIJoystick, dir);
         // end
+
+        this.stick.setPosition(v3(len * dir.x, len * dir.y, 0));
+
     }
 
     private onTouchEndEvent(event: EventTouch): void {
@@ -73,13 +89,17 @@ export class UIGameUICtrl extends UIComponent {
         var dir = v2(0, 0);
         EventManager.Instance.Emit(UIGameEvent.UIJoystick, dir);
         // end
-
+        this.joystick.active = false; 
     }
 
     private onTouchStartEvent(event: EventTouch): void {
         if(this.controlMode === ControlMode.joystick) { // 摇杆模式
             this.startPos = event.getUILocation();
             this.endPos = this.startPos;
+            this.joystick.active = true; 
+            var joyStickPos = this.uiTransform.convertToNodeSpaceAR(v3(this.startPos.x, this.startPos.y, 0));
+            this.joystick.setPosition(joyStickPos);
+            this.stick.setPosition(Vec3.ZERO);
             return;
         }
 

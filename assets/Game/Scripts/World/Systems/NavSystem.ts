@@ -90,19 +90,78 @@ export class NavSystem {
         transformComponent: TransformComponent,
         baseComponent: BaseComponent) {
         
-        
+        var dir = new Vec3(navComponent.joyStickDir.x, navComponent.joyStickDir.y, 0);
+
+        var targetPos = null;
+        var speed = unitComponent.moveSpeed * dt;
+
         var x = transformComponent.pos.x + (navComponent.vx * dt);
         var y = transformComponent.pos.y + (navComponent.vy * dt);
         
-        var roadNode = PathFindingAgent.instance.getRoadNodeByPixel(x, y);
-        if(!roadNode || roadNode.value === 1) { // 我们就不动
-            return;
+        var roadNode = PathFindingAgent.instance.getRoadNodeByPixel(transformComponent.pos.x, transformComponent.pos.y);
+        var nextNode = PathFindingAgent.instance.getRoadNodeByPixel(x, y);
+        if(!nextNode) {
+            targetPos = transformComponent.pos.clone();
+        }
+        else {
+            if(nextNode.value != 1) {
+                targetPos = v3(x, y, 0);
+            }
+            else {
+                var nodeArr:RoadNode[] = PathFindingAgent.instance.getRoundRoadNodes(roadNode);
+                var bestRoadNode:RoadNode = null;
+
+                for(var i: number = 0 ; i < nodeArr.length ; i++) {
+                    if(!nodeArr[i] || nodeArr[i].value == 1 || nodeArr[i] == nextNode) {
+                        continue;
+                    }
+
+                    nodeArr[i].h = (Math.abs(nextNode.cx - nodeArr[i].cx) + Math.abs(nextNode.cy - nodeArr[i].cy)) * 10;
+
+                    if(!bestRoadNode) {
+                        bestRoadNode = nodeArr[i];
+                    }
+                    else {
+                        if(nodeArr[i].h < bestRoadNode.h) {
+                            bestRoadNode = nodeArr[i];
+                        }
+                        else if(nodeArr[i].h == bestRoadNode.h) {
+                            var dir1:Vec3 = new Vec3(nodeArr[i].px,nodeArr[i].py).subtract(transformComponent.pos).normalize();
+                            var dir2:Vec3 = new Vec3(bestRoadNode.px,bestRoadNode.py).subtract(transformComponent.pos).normalize();
+
+                            if((dir1.add(dir)).length() > (dir2.add(dir)).length()) {
+                                bestRoadNode = nodeArr[i];
+                            }
+                        }
+                    }
+                }
+
+                if(bestRoadNode) {
+                    var dir1:Vec3 = new Vec3(nextNode.px,nextNode.py).subtract(transformComponent.pos).normalize();
+                    var dir2:Vec3 = new Vec3(bestRoadNode.px,bestRoadNode.py).subtract(transformComponent.pos).normalize();
+
+                    if((dir1.add(dir)).length() / 2   > (dir2.add(dir)).length()) {
+                        targetPos = transformComponent.pos.clone();
+                    }
+                    else {
+                        targetPos = new Vec3(bestRoadNode.px,bestRoadNode.py);
+                    }
+                }                
+            }
+        }
+
+        var dir:Vec3 = targetPos.clone().subtract(transformComponent.pos);
+        var dis:number = dir.length();
+        dir = dir.normalize();
+        
+        if(dis >= speed) {
+            targetPos = transformComponent.pos.clone().add(dir.multiplyScalar(speed)); 
         }
 
         // 同步节点的位置, gameObject
-        transformComponent.pos.x = x;
-        transformComponent.pos.y = y;
-        baseComponent.gameObject?.setPosition(transformComponent.pos);
+        transformComponent.pos.x = targetPos.x;
+        transformComponent.pos.y = targetPos.y;
+        baseComponent.gameObject?.setPosition(targetPos);
         // end
     }
 

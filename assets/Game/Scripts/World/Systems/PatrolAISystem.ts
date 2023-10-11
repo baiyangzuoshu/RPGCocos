@@ -35,7 +35,7 @@ export class PatrolAISystem {
         if(roadNodeArr.length < 2) {
             return;
         }
-        NavSystem.StartAction(roadNodeArr, navComponent, unitComponent);
+        NavSystem.StartNavTouchAction(roadNodeArr, navComponent);
         // end
     }
 
