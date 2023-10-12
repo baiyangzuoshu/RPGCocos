@@ -7,10 +7,11 @@ const { ccclass, property } = _decorator;
 
 @ccclass('UIGameUICtrl')
 export class UIGameUICtrl extends UIComponent {
+    
     private joystick: Node = null;
     private stick: Node = null;
 
-    private controlMode: ControlMode = ControlMode.joystick;
+    private controlMode: ControlMode = ControlMode.touch;
     private startPos: Vec2 = null;
     private endPos: Vec2 = null;
     private maxR: number = 80;

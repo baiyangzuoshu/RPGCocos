@@ -1,4 +1,4 @@
-import { v3, Vec2, Vec3 } from 'cc';
+import { v2, v3, Vec2, Vec3 } from 'cc';
 import { NavComponent } from '../Components/NavComponent';
 import { UnitComponent, UnitState } from '../Components/UnitComponent';
 import { TransformComponent } from '../Components/TransformComponent';

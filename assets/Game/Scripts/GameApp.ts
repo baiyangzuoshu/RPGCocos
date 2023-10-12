@@ -1,15 +1,5 @@
 import { Component, Node, TextAsset, find, Prefab } from 'cc';
-import { SceneManager } from '../../Framework/Scripts/Managers/SceneManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
-import { Debug } from '../../Framework/Scripts/Managers/Debug';
-import { EventManager } from '../../Framework/Scripts/Managers/EventManager';
-import { TimerManager } from '../../Framework/Scripts/Managers/TimerManager';
-import { HttpUtils } from '../../Framework/Scripts/Utils/HttpUtils';
-import { SoundManager } from '../../Framework/Scripts/Managers/SoundManager';
-import { ExcelManager } from '../../Framework/Scripts/Managers/ExcelManager';
-import { PoolManager } from '../../Framework/Scripts/Managers/PoolManager';
-import { WsNetMgr } from '../../Framework/Scripts/Managers/WsNetMgr';
-
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
 import { BundleName, UIView } from './Constants';
 import { GameController } from './GameController';

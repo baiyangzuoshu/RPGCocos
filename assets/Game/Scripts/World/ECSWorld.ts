@@ -215,7 +215,7 @@ export class ECSWorld extends Component {
         }
 
         for (let key in this.monsterEntities) {
-            if(!this.monsterEntities[key]) {
+            if(!this.monsterEntities[key] || !this.monsterEntities[key].monestComponent.isPatrol) {
                 continue;
             }
 

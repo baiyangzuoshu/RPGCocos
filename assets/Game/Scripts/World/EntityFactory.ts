@@ -8,6 +8,7 @@ import { NavComponent } from './Components/NavComponent';
 import { PatrolAIComponent } from './Components/PatrolAIComponent';
 import { RectShapeComponent, RoundShapeComponent, ShapeType } from './Components/ShapeComponent';
 import { UnitState } from './Components/UnitComponent';
+import { MonestEntity } from './Entities/MonestEntity';
 import { NPCEntity } from './Entities/NPCEntity';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { TransferEntity } from './Entities/TransferEntity';
@@ -178,8 +179,76 @@ export class EntityFactory {
 
 
     public static async CreateMonestEntity(config: any) {
-        // console.log("CreateMonestEntity", config);
-        return null;
+        // 在场景中构造节点
+        var entity: MonestEntity = new MonestEntity();
+
+        // BaseComponent
+        entity.baseComponent.entityID = EntityFactory.autoID ++;
+        entity.baseComponent.type = EntityType.Monster;
+        entity.baseComponent.name = config.objName;
+        entity.baseComponent.subTypeID = config.objId;
+        // end
+
+        // TransformComponent
+        entity.transformComponent.pos.x = config.x;
+        entity.transformComponent.pos.y = config.y;
+        // end
+
+        // monest Componet
+        entity.monestComponent.monsterId = config.objId;
+        entity.monestComponent.defaultDir = config.direction;
+        entity.monestComponent.isPatrol = config.isPatrol;    
+        entity.monestComponent.dialogueId = config.dialogueId;
+        entity.monestComponent.fightId = config.fightId;
+        // end 
+
+        // 创建我们的Cocos Node
+        var pefabName = "Prefabs/Monster";
+        var prefab = await ResManager.Instance.IE_GetAsset(BundleName.Charactors, pefabName, Prefab);
+        var gameObject = instantiate(prefab) as unknown as Node;
+        var filePath:string = "monster/" + config.objId + "/texture";
+        var tex = await ResManager.Instance.IE_GetAsset(BundleName.Charactors, filePath, Texture2D);
+        gameObject.getChildByName("NameTxt").getComponent(Label).string = config.objName;
+        EntityFactory.entityRoot.addChild(gameObject);
+        gameObject.setPosition(v3(config.x, config.y, 0));
+
+        entity.unitComponent.uiOpacity = gameObject.getComponent(UIOpacity);
+        entity.unitComponent.movieClip = gameObject.getComponentInChildren(MovieClip);
+        entity.unitComponent.movieClip.init(tex as Texture2D, 5, 8);
+        entity.baseComponent.gameObject = gameObject;
+        // end
+
+        // unitComponent
+        entity.unitComponent.state = UnitState.none;
+        entity.unitComponent.direction = config.direction;
+        EntityUtils.SetEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent);
+        EntityUtils.SetEntityDirection(entity.unitComponent.direction, entity.unitComponent, entity.baseComponent)
+        // end
+
+        // ShapeComponent
+        entity.shapeComponent.type = ShapeType.Rect;
+        entity.shapeComponent.shape = new RectShapeComponent();
+        entity.shapeComponent.shape.width = (tex as Texture2D).width / 5;
+        entity.shapeComponent.shape.height = (tex as Texture2D).height / 8;
+        // end
+
+        if(!entity.monestComponent.isPatrol) {
+            return entity;
+        }
+        
+        // nav
+        entity.navComponent = new NavComponent();
+        // end
+
+        // AI Partrol
+        /*entity.patrolAIComponent = new PatrolAIComponent();
+        entity.patrolAIComponent.patrolRange = 200;
+        entity.patrolAIComponent.lastTime = 3.5;
+        entity.patrolAIComponent.isStopPatrol = false;
+        */
+        // end
+        
+        return entity;
     }
 
     public static async CreateTransferEntity(config: any) {
