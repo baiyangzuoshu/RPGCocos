@@ -302,7 +302,7 @@ export class ECSWorld extends Component {
     private NPCInteractiveTestUpdate(): void {
         for (let key in this.npcEntities) {
             var npcEntity: NPCEntity = this.npcEntities[key];
-
+            
             if(!npcEntity.npcInteractiveComponent || npcEntity.npcInteractiveComponent.interactiveState !== InteractiveState.closed) {
                 continue;
             }
@@ -319,10 +319,14 @@ export class ECSWorld extends Component {
 
                 NPCInteractiveTestSystem.Update(npcEntity.shapeComponent, 
                                                 npcEntity.npcInteractiveComponent,
-                                                playerEntity.shapeComponent, 
+                                                npcEntity.patrolAIComponent,
+                                                npcEntity.navComponent,
+                                                npcEntity.unitComponent,
                                                 npcEntity.transformComponent, 
+                                                npcEntity.baseComponent, 
+                                                playerEntity.shapeComponent, 
                                                 playerEntity.transformComponent, 
-                                                npcEntity.baseComponent, playerEntity.baseComponent);
+                                                playerEntity.baseComponent);
             }
         }
     }

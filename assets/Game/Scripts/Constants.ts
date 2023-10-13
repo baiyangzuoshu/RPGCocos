@@ -19,6 +19,7 @@ export enum UIGameEvent {
     UILoginOut = "UILoginOut",
     UILoginIn = "UILoginIn",
     UIJoystick = "UIJoystick",
+    UIOpenEquipShop = "UIOpenEquipShop",
 }
 
 export enum GameEvent {

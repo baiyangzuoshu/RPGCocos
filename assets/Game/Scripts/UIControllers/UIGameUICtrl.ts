@@ -34,6 +34,10 @@ export class UIGameUICtrl extends UIComponent {
         this.stick = this.joystick.getChildByName("Stick");
 
         this.uiTransform = this.node.getComponent(UITransform);
+
+        this.OnCloseEquipShop();
+        // console.log(this.node);
+
         // 摇杆的事件
         node.on(Node.EventType.TOUCH_START, this.onTouchStartEvent,this);
         node.on(Node.EventType.TOUCH_MOVE, this.onTouchMoveEvent,this);
@@ -45,12 +49,39 @@ export class UIGameUICtrl extends UIComponent {
         this.AddButtonListener("UILayer/TopToolbar/ControllBtn", this, this.OnChangeControlType);
         this.AddButtonListener("UILayer/TopToolbar/SwBtn", this, this.OnSwitchRole);
         this.AddButtonListener("UILayer/TopToolbar/LoginBtn", this, this.OnLoginOut);
+        // end
+
+
         // 地图切换按钮响应
         this.AddButtonListener("UILayer/MapBar/Content/MapItem1", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem2", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem3", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem4", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem5", this, this.OnUIGotoMap);
+        // end
+
+        // 功能按钮响应
+        this.AddButtonListener("UILayer/EquipShopView/Title/CloseTxt", this, this.OnCloseEquipShop);
+        // end
+
+        EventManager.Instance.AddEventListener(UIGameEvent.UIOpenEquipShop, this.OnOpenEquipShop, this);
+    }
+
+    protected onDestroy(): void {
+        EventManager.Instance.RemoveEventListener(UIGameEvent.UIOpenEquipShop, this.OnOpenEquipShop, this);    
+    }
+
+    private OnOpenEquipShop(): void {
+        // 重新的new 界面
+        var equipShop = this.ViewNode("UILayer/EquipShopView");
+        equipShop.active = true;
+        // end
+
+    }
+
+    private OnCloseEquipShop(): void {
+        var equipShop = this.ViewNode("UILayer/EquipShopView");
+        equipShop.active = false;
     }
 
     private OnUIGotoMap(targetButton):void {

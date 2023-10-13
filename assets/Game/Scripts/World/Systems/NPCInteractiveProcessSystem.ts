@@ -1,17 +1,20 @@
 import { Label } from "cc";
+import { InteractiveState, NPCInteractiveComponent } from "../Components/NPCInteractiveComponent";
 import { UnitState } from "../Components/UnitComponent";
 import { NPCEntity } from "../Entities/NPCEntity";
 import { EntityUtils } from "../EntityUtils";
 import { BaseComponent } from "../Components/BaseComponent";
 import { PatrolAIComponent } from "../Components/PatrolAIComponent";
-import { InteractiveState, NPCInteractiveComponent } from "../Components/NPCInteractiveComponent";
+import { UIGameEvent } from "../../Constants";
+import { EventManager } from "../../../../Framework/Scripts/Managers/EventManager";
 
 export class NPCInteractiveProcessSystem {
 
     private static OnGotoNextState(npcInteractiveComponent: NPCInteractiveComponent, patrolAIComponent: PatrolAIComponent, baseComponent: BaseComponent): void {
         npcInteractiveComponent.stepIndex ++;
 
-
+        baseComponent.gameObject.getChildByName("TalkBoard").active = false;
+        
         if(npcInteractiveComponent.stepIndex >= npcInteractiveComponent.actionSeq.length) {
             npcInteractiveComponent.interactiveState = InteractiveState.closed;
             npcInteractiveComponent.stepIndex = -1;
@@ -23,8 +26,7 @@ export class NPCInteractiveProcessSystem {
             return;            
         }
 
-        // 
-        baseComponent.gameObject.getChildByName("TalkBoard").active = false;
+       
         
         var curState = npcInteractiveComponent.actionSeq[npcInteractiveComponent.stepIndex];
         var curId = npcInteractiveComponent.actionId[npcInteractiveComponent.stepIndex];
@@ -63,15 +65,30 @@ export class NPCInteractiveProcessSystem {
         if(npcInteractiveComponent.timeIenterval <= 0) {
             npcInteractiveComponent.charLen ++;
             var talkStr = npcInteractiveComponent.sayStatement[npcInteractiveComponent.sayIndex];
-            if(!talkStr || talkStr.length <= 0 || npcInteractiveComponent.charLen > talkStr.length) {
+            if(!talkStr || talkStr.length <= 0) {
                 npcInteractiveComponent.sayIndex ++; // 跳到下一句
-                npcInteractiveComponent.timeIenterval = 0.25;
+                npcInteractiveComponent.timeIenterval = 0;
                 if(npcInteractiveComponent.sayIndex >= npcInteractiveComponent.sayStatement.length) {
                     NPCInteractiveProcessSystem.OnGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
                 }
             }
+            else if (npcInteractiveComponent.charLen > talkStr.length) {
+                if(npcInteractiveComponent.charLen === talkStr.length + 1) {
+                    npcInteractiveComponent.timeIenterval = 1.5;
+                    return;
+                }
+                else  {
+                    npcInteractiveComponent.sayIndex ++; // 跳到下一句
+                    npcInteractiveComponent.timeIenterval = 0;
+                    npcInteractiveComponent.charLen = 0;
+
+                    if(npcInteractiveComponent.sayIndex >= npcInteractiveComponent.sayStatement.length) {
+                        NPCInteractiveProcessSystem.OnGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
+                    }
+                }
+            }
             else { // 改变一下内容；
-                npcInteractiveComponent.timeIenterval = 0.25;
+                npcInteractiveComponent.timeIenterval = 0.065;
                 var str:string = talkStr.substring(0, npcInteractiveComponent.charLen);
                 label.string = str;
             }
@@ -79,6 +96,21 @@ export class NPCInteractiveProcessSystem {
         }
     }
     // end
+
+    private static ProcessFuncState(dt: number, baseComponent: BaseComponent, 
+                                    npcInteractiveComponent: NPCInteractiveComponent,
+                                    patrolAIComponent: PatrolAIComponent): void {
+        
+        switch(npcInteractiveComponent.curId) {
+            case 1: // 购买装备,开启装备商店;
+                console.log(npcInteractiveComponent.curId);
+                EventManager.Instance.Emit(UIGameEvent.UIOpenEquipShop, null);
+            break;
+        }
+
+        NPCInteractiveProcessSystem.OnGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
+
+    }
 
     public static Update(dt: number, npcEntity: NPCEntity): void {
         // open 初始时候的处理
@@ -93,6 +125,11 @@ export class NPCInteractiveProcessSystem {
             return;
         }
 
+        if(npcEntity.npcInteractiveComponent.interactiveState === InteractiveState.ProcessingFunc) {
+            console.log("InteractiveState.ProcessingFunc", typeof(npcEntity.npcInteractiveComponent.curId));
+            this.ProcessFuncState(dt, npcEntity.baseComponent, npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent);
+            return;
+        }
         // 默认处理
         NPCInteractiveProcessSystem.OnGotoNextState(npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent, npcEntity.baseComponent);
     }

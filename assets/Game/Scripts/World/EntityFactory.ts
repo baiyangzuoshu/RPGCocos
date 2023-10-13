@@ -162,6 +162,29 @@ export class EntityFactory {
         entity.shapeComponent.shape.height = (tex as Texture2D).height / 12;
         // end
 
+        // NPC 交互
+        if(entity.npcComponent.dialogueId !== 0 || entity.npcComponent.funcId !== 0 || entity.npcComponent.taskId !== 0) {
+            entity.npcInteractiveComponent = new NPCInteractiveComponent();
+            if(entity.npcComponent.dialogueId !== 0) {
+                entity.npcInteractiveComponent.actionId.push(entity.npcComponent.dialogueId);
+                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.Talking);
+                // 根据对话ID，从配置文件里面读取;
+                entity.npcInteractiveComponent.sayStatement = GameDataManager.Instance.GetNpcTalkData(config.dialogueId);
+                entity.npcInteractiveComponent.sayIndex = 0;
+            }
+
+            if(entity.npcComponent.funcId !== 0) {
+                entity.npcInteractiveComponent.actionId.push(entity.npcComponent.funcId);
+                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.ProcessingFunc);
+            }
+
+            if(entity.npcComponent.taskId !== 0) {
+                entity.npcInteractiveComponent.actionId.push(entity.npcComponent.taskId);
+                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.ClaimTask);
+            }
+        } 
+        // end
+        
         if(!entity.npcComponent.isPatrol) {
             return entity;
         }
@@ -177,29 +200,6 @@ export class EntityFactory {
         entity.patrolAIComponent.isStopPatrol = false;
         // end
 
-        // NPC 交互
-        if(config.dialogueId !== 0 || config.funcId !== 0 || config.taskId !== 0) {
-            entity.npcInteractiveComponent = new NPCInteractiveComponent();
-            if(config.dialogueId !== 0) {
-                entity.npcInteractiveComponent.actionId.push(config.dialogueId);
-                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.Talking);
-                // 根据对话ID，从配置文件里面读取;
-                entity.npcInteractiveComponent.sayStatement = GameDataManager.Instance.GetNpcTalkData(config.dialogueId);
-                entity.npcInteractiveComponent.sayIndex = 0;
-            }
-
-            if(config.funcId !== 0) {
-                entity.npcInteractiveComponent.actionId.push(config.funcId);
-                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.ProcessingFunc);
-            }
-
-            if(config.taskId !== 0) {
-                entity.npcInteractiveComponent.actionId.push(config.taskId);
-                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.ClaimTask);
-            }
-        } 
-        // end
-        
         return entity;
     }
 
