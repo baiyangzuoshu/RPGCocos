@@ -1,10 +1,12 @@
 import { _decorator, Component, Node, Prefab, instantiate, Label, BoxCollider, SphereCollider, Texture2D, v3, UIOpacity } from 'cc';
 import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
+import { GameDataManager } from '../../GameDataManager';
 import EntityLayer from '../3rd/map/layer/EntityLayer';
 import { BundleName, EntityName } from '../Constants';
 import MovieClip from '../Utils/MovieClip';
 import { EntityType } from './Components/BaseComponent';
 import { NavComponent } from './Components/NavComponent';
+import { InteractiveState, NPCInteractiveComponent } from './Components/NPCInteractiveComponent';
 import { PatrolAIComponent } from './Components/PatrolAIComponent';
 import { RectShapeComponent, RoundShapeComponent, ShapeType } from './Components/ShapeComponent';
 import { UnitState } from './Components/UnitComponent';
@@ -111,7 +113,7 @@ export class EntityFactory {
         entity.baseComponent.entityID = EntityFactory.autoID ++;
         entity.baseComponent.type = EntityType.NPC;
         entity.baseComponent.name = config.objName;
-        entity.baseComponent.subTypeID = config.objId;
+        entity.baseComponent.subTypeID = parseInt(config.objId);
         // end
 
         // TransformComponent
@@ -120,12 +122,14 @@ export class EntityFactory {
         // end
 
         // NPC Componet
-        entity.npcComponent.npcId = config.objId;
+        entity.npcComponent.npcId = Number(config.objId);
         entity.npcComponent.defaultDir = config.direction;
         entity.npcComponent.isPatrol = config.isPatrol;    
-        entity.npcComponent.dialogueId = config.dialogueId;
-        entity.npcComponent.taskId = config.taskId;
-        entity.npcComponent.funcId = config.funcId;
+        entity.npcComponent.dialogueId = Number(config.dialogueId);
+        entity.npcComponent.taskId = Number(config.taskId);
+        entity.npcComponent.funcId = Number(config.funcId);
+        entity.npcComponent.startX = config.x;
+        entity.npcComponent.startY = config.y;
         // end 
 
         // 创建我们的Cocos Node
@@ -172,6 +176,29 @@ export class EntityFactory {
         entity.patrolAIComponent.lastTime = 3.5;
         entity.patrolAIComponent.isStopPatrol = false;
         // end
+
+        // NPC 交互
+        if(config.dialogueId !== 0 || config.funcId !== 0 || config.taskId !== 0) {
+            entity.npcInteractiveComponent = new NPCInteractiveComponent();
+            if(config.dialogueId !== 0) {
+                entity.npcInteractiveComponent.actionId.push(config.dialogueId);
+                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.Talking);
+                // 根据对话ID，从配置文件里面读取;
+                entity.npcInteractiveComponent.sayStatement = GameDataManager.Instance.GetNpcTalkData(config.dialogueId);
+                entity.npcInteractiveComponent.sayIndex = 0;
+            }
+
+            if(config.funcId !== 0) {
+                entity.npcInteractiveComponent.actionId.push(config.funcId);
+                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.ProcessingFunc);
+            }
+
+            if(config.taskId !== 0) {
+                entity.npcInteractiveComponent.actionId.push(config.taskId);
+                entity.npcInteractiveComponent.actionSeq.push(InteractiveState.ClaimTask);
+            }
+        } 
+        // end
         
         return entity;
     }
@@ -186,7 +213,7 @@ export class EntityFactory {
         entity.baseComponent.entityID = EntityFactory.autoID ++;
         entity.baseComponent.type = EntityType.Monster;
         entity.baseComponent.name = config.objName;
-        entity.baseComponent.subTypeID = config.objId;
+        entity.baseComponent.subTypeID = Number(config.objId);
         // end
 
         // TransformComponent
@@ -195,11 +222,13 @@ export class EntityFactory {
         // end
 
         // monest Componet
-        entity.monestComponent.monsterId = config.objId;
+        entity.monestComponent.monsterId = Number(config.objId);
         entity.monestComponent.defaultDir = config.direction;
         entity.monestComponent.isPatrol = config.isPatrol;    
         entity.monestComponent.dialogueId = config.dialogueId;
         entity.monestComponent.fightId = config.fightId;
+        entity.monestComponent.startX = config.x;
+        entity.monestComponent.startY = config.y;
         // end 
 
         // 创建我们的Cocos Node
@@ -307,5 +336,6 @@ export class EntityFactory {
 
 
 }
+
 
 

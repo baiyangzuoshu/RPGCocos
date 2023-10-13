@@ -1,6 +1,7 @@
 import { Component, Node, TextAsset, find, Prefab } from 'cc';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
+import { GameDataManager } from '../GameDataManager';
 import { BundleName, UIView } from './Constants';
 import { GameController } from './GameController';
 
@@ -18,7 +19,7 @@ export class GameApp extends Component {
     }
 
     public Init(): void {
-
+        GameDataManager.Instance.Init();
     }
 
     public async EnterGame() {

@@ -2,11 +2,15 @@ import { _decorator, Component, Node, warn } from 'cc';
 import MapData from '../3rd/map/base/MapData';
 import MapParams from '../3rd/map/base/MapParams';
 import { MapItemType } from '../Constants';
+import { InteractiveState } from './Components/NPCInteractiveComponent';
+import { NPCEntity } from './Entities/NPCEntity';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { TransferEntity } from './Entities/TransferEntity';
 import { EntityFactory } from './EntityFactory';
 import { EntityAlphaSystem } from './Systems/EntityAlphaSystem';
 import { NavSystem } from './Systems/NavSystem';
+import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSystem';
+import { NPCInteractiveTestSystem } from './Systems/NPCInteractiveTestSystem';
 import { PatrolAISystem } from './Systems/PatrolAISystem';
 import { TransferSystem } from './Systems/TransferSystem';
 
@@ -91,14 +95,14 @@ export class ECSWorld extends Component {
 
             var entity = null;
 
-            if(mapItem.type == "npc") {
+            if(mapItem.type == "npc" && Number(mapItem.objId) != 0) {
                 entity = await EntityFactory.CreateNPCEntity(mapItem);
                 if(entity === null) {
                     continue;
                 }
                 this.npcEntities[entity.baseComponent.entityID] = entity;
             }
-            else if(mapItem.type == "monster") {
+            else if(mapItem.type == "monster" && Number(mapItem.objId) != 0) {
                 entity = await EntityFactory.CreateMonestEntity(mapItem);
                 if(entity === null) {
                     continue;
@@ -295,6 +299,47 @@ export class ECSWorld extends Component {
         }
     }
 
+    private NPCInteractiveTestUpdate(): void {
+        for (let key in this.npcEntities) {
+            var npcEntity: NPCEntity = this.npcEntities[key];
+
+            if(!npcEntity.npcInteractiveComponent || npcEntity.npcInteractiveComponent.interactiveState !== InteractiveState.closed) {
+                continue;
+            }
+
+            // 遍历传送门，AOI范围内的玩家，不用遍历这个服务器上的所有玩家
+            // 我们单机游戏，玩家只有一个，所以我们遍历所有玩家列表;
+            // 从我们的GameDataMgr里面读取我们当前selfPlayer的玩家ID；
+            for(let playerKey in this.playerEntities) {
+                var playerEntity = this.playerEntities[playerKey];
+                
+                if(playerEntity === null) {
+                    continue;
+                }
+
+                NPCInteractiveTestSystem.Update(npcEntity.shapeComponent, 
+                                                npcEntity.npcInteractiveComponent,
+                                                playerEntity.shapeComponent, 
+                                                npcEntity.transformComponent, 
+                                                playerEntity.transformComponent, 
+                                                npcEntity.baseComponent, playerEntity.baseComponent);
+            }
+        }
+    }
+
+    private NPCInteractiveProcessUpdate(dt: number): void {
+        for (let key in this.npcEntities) {
+            var npcEntity: NPCEntity = this.npcEntities[key];
+
+            if(!npcEntity.npcInteractiveComponent || npcEntity.npcInteractiveComponent.interactiveState === InteractiveState.closed) {
+                continue;
+            }
+
+            NPCInteractiveProcessSystem.Update(dt, npcEntity);
+            
+        }
+    }
+
     protected update(dt: number): void {
 
         // AI System的迭代
@@ -311,6 +356,14 @@ export class ECSWorld extends Component {
 
         // 模拟服务器上的传送门的迭代计算
         this.SimTrasferUpdate(dt);
+        // end
+
+        // 模拟服务器上 NPC 对话检测的迭代计算 
+        this.NPCInteractiveTestUpdate();
+        // end 
+
+        // 客户端的NPC对话进程迭代计算
+        this.NPCInteractiveProcessUpdate(dt);
         // end
     }
 }
