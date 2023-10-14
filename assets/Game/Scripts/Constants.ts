@@ -23,6 +23,10 @@ export enum UIGameEvent {
     UIAttack = "UIAttack",
 }
 
+export enum InternalEvent {
+    CalcDamage = 1,
+}
+
 export enum GameEvent {
     NetServerRetEvent = "NetServerRetEvent",
 }
@@ -37,6 +41,8 @@ export enum ServerReturnEvent {
     LoginOutRet = 6, // 登出游戏
     JoystickEvent = 7, // 摇杆事件
     PlayerAttack = 8, // 玩家角色发起攻击
+    CalcDamage = 9, // 玩家计算伤害;
+    EntityDead = 10, // Entity死亡
 }
 
 export enum EntityName {

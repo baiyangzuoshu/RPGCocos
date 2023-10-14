@@ -10,6 +10,8 @@ export class AttackComponent {
     public attackTarget: any = null!; // 玩家，怪物 
 
     public effectNode: Node = null!;
+
+    public baseAttack: number = 10; // 根据等级从配置表里面计算的；基础+招数*加权
 } 
 
 

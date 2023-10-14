@@ -30,8 +30,8 @@ export class GameDataManager {
     }
 
     private GameAttackData = {
-        90001: {attackR: 80, IsAreaAttack: false, attackEffectName: "Prefabs/RoadSign"},
-        90002: {attackR: 80, IsAreaAttack: true, attackEffectName: "Prefabs/RoadSign"},
+        90001: {attackR: 80, baseAttacValue: 20, IsAreaAttack: false, attackEffectName: "Prefabs/RoadSign"},
+        90002: {attackR: 120, baseAttacValue: 40, IsAreaAttack: true, attackEffectName: "Prefabs/RoadSign"},
     }
 
     public GetAttackConfigData(attackId: number): any {

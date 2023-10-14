@@ -16,7 +16,6 @@ import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSyst
 import { NPCInteractiveTestSystem } from './Systems/NPCInteractiveTestSystem';
 import { PatrolAISystem } from './Systems/PatrolAISystem';
 import { TransferSystem } from './Systems/TransferSystem';
-
 export class ECSWorld extends Component {
 
     private spawnPoints = {};
@@ -39,8 +38,32 @@ export class ECSWorld extends Component {
         return null;
     }
 
-    public GetNearastMonestAttackEntity(entity:PlayerEntity, attackId): void {
-        var attackR = AttackSystem.GetPlayerEntityAttackR(entity, attackId);
+    public GetMonestEntitiesInAttackR(centerPos: Vec3, attackR: number): Array<any> {
+     
+        var minDis = attackR * attackR;
+        var targets = [];
+
+        for (let key in this.monsterEntities) { // AOI
+            if(this.monsterEntities[key] === null) {
+                continue;
+            }
+
+            if(this.monsterEntities[key].unitComponent.state === UnitState.death || this.monsterEntities[key].unitComponent.state === UnitState.none) {
+                continue;
+            }
+
+            var len = Vec3.squaredDistance(centerPos, this.monsterEntities[key].transformComponent.pos);
+            if(len <= minDis) {
+                targets.push(this.monsterEntities[key]);
+                minDis = len;
+            }
+        }
+
+        return targets;
+    }
+
+    public GetNearastMonestAttackEntity(entity:PlayerEntity, attackId): any {
+        var attackR = AttackSystem.GetPlayerEntityAttackR(/*entity, */attackId);
         console.log(attackR);
 
         var minDis = attackR * attackR;
@@ -330,7 +353,9 @@ export class ECSWorld extends Component {
                 continue;
             }
 
-            AttackSystem.Update(dt, this.playerEntities[key].attackComponent, 
+            AttackSystem.Update(dt, this, 
+                this.playerEntities[key].transformComponent, 
+                this.playerEntities[key].attackComponent, 
                 this.playerEntities[key].unitComponent, 
                 this.playerEntities[key].baseComponent);
         }
@@ -345,7 +370,9 @@ export class ECSWorld extends Component {
                 continue;
             }
 
-            AttackSystem.Update(dt, this.monsterEntities[key].attackComponent, 
+            AttackSystem.Update(dt, this, 
+                this.monsterEntities[key].transformComponent,
+                this.monsterEntities[key].attackComponent, 
                 this.monsterEntities[key].unitComponent, 
                 this.monsterEntities[key].baseComponent);
         }
