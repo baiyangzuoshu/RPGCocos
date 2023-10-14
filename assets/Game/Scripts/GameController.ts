@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Prefab, JsonAsset, ImageAsset, Texture2D, find } from 'cc';
+import { Component, JsonAsset, Node, Prefab, Texture2D, find } from 'cc';
 import { EventManager } from '../../Framework/Scripts/Managers/EventManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { SceneManager } from '../../Framework/Scripts/Managers/SceneManager';
@@ -6,7 +6,6 @@ import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
 import { MapLoadModel } from './3rd/map/base/MapLoadModel';
 import { BundleName, GameEvent, ServerReturnEvent, UIGameEvent, UIView } from './Constants';
 import { FightManager } from './FightManager';
-const { ccclass, property } = _decorator;
 
 export class GameController extends Component {
     public static Instance: GameController = null!;
@@ -105,4 +104,4 @@ export class GameController extends Component {
 
 }
 
- 
+

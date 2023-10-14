@@ -1,26 +1,26 @@
-import { _decorator, Component, Node, Camera, JsonAsset, Texture2D, Prefab, instantiate, v3, Vec2, Vec3, UITransform, warn } from 'cc';
+import { _decorator, Camera, Component, instantiate, JsonAsset, Node, Prefab, Texture2D, UITransform, v3, Vec2, Vec3, warn} from 'cc';
+import { BundleName, UIGameEvent, ServerReturnEvent, GameEvent } from './Constants';
+import { MapLoadModel } from './3rd/map/base/MapLoadModel';
+import MapData from './3rd/map/base/MapData';
+import MapParams from './3rd/map/base/MapParams';
+import { DeviceParams } from './DeviceParams';
+import { MapViewLoader } from './MapViewLoader';
+import { ECSWorld } from './World/ECSWorld';
+import PathLog from './3rd/map/road/PathLog';
+import PathFindingAgent from './3rd/map/road/PathFindingAgent';
+import RoadNode from './3rd/map/road/RoadNode';
+import { NavSystem } from './World/Systems/NavSystem';
+import { UnitState } from './World/Components/UnitComponent';
+import { PlayerEntity } from './World/Entities/PlayerEntity';
+import { GameCamera } from './GameCamera';
+import { EntityFactory } from './World/EntityFactory';
+import { ControlMode } from './World/Components/RoleComponent';
+import { EntityType } from './World/Components/BaseComponent';
+import { AttackSystem } from './World/Systems/AttackSystem';
+import { TrackAttackSystem } from './World/Systems/TrackAttackSystem';
+import { EntityUtils } from './World/EntityUtils';
 import { EventManager } from '../../Framework/Scripts/Managers/EventManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
-import MapData from './3rd/map/base/MapData';
-import { MapLoadModel } from './3rd/map/base/MapLoadModel';
-import MapParams from './3rd/map/base/MapParams';
-import PathFindingAgent from './3rd/map/road/PathFindingAgent';
-import PathLog from './3rd/map/road/PathLog';
-import RoadNode from './3rd/map/road/RoadNode';
-import { BundleName, UIGameEvent, ServerReturnEvent, GameEvent } from './Constants';
-import { DeviceParams } from './DeviceParams';
-import { GameCamera } from './GameCamera';
-import { MapViewLoader } from './MapViewLoader';
-import { EntityType } from './World/Components/BaseComponent';
-import { ControlMode } from './World/Components/RoleComponent';
-import { UnitState } from './World/Components/UnitComponent';
-import { ECSWorld } from './World/ECSWorld';
-import { PlayerEntity } from './World/Entities/PlayerEntity';
-import { EntityFactory } from './World/EntityFactory';
-import { AttackSystem } from './World/Systems/AttackSystem';
-import { NavSystem } from './World/Systems/NavSystem';
-import { TrackAttackSystem } from './World/Systems/TrackAttackSystem';
-const { ccclass, property } = _decorator;
 
 export class FightManager extends Component {
     public static Instance: FightManager = null;
@@ -301,7 +301,8 @@ export class FightManager extends Component {
         entity.roleComponent.controlMode = ControlMode.joystick;
 
         if(event.dir.x === 0 && event.dir.y === 0) {
-            NavSystem.StopAction(entity.navComponent);    
+            NavSystem.StopAction(entity.navComponent);   
+            EntityUtils.SetEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent); 
             return;
         }
         
@@ -548,7 +549,5 @@ export class FightManager extends Component {
         this.isLoading = false;
     }
 }
-
-
 
 

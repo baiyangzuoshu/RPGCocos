@@ -1,0 +1,5 @@
+﻿编号,攻击范围,基本攻击值,是否为区域杀伤,攻击特效
+number,number,number,number,string
+ID,attackR,baseAttacValue,IsAreaAttack,attackEffectPath
+90001,80,20,0,Prefabs/RoadSign
+90002,120,40,1,Prefabs/RoadSign

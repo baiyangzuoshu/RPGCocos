@@ -1,20 +1,19 @@
-import { _decorator, Component, Node, Prefab, instantiate, Label, BoxCollider, SphereCollider, Texture2D, v3, UIOpacity } from 'cc';
-import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
-import { GameDataManager } from '../../GameDataManager';
-import EntityLayer from '../3rd/map/layer/EntityLayer';
-import { BundleName, EntityName } from '../Constants';
-import MovieClip from '../Utils/MovieClip';
-import { EntityType } from './Components/BaseComponent';
-import { NavComponent } from './Components/NavComponent';
-import { InteractiveState, NPCInteractiveComponent } from './Components/NPCInteractiveComponent';
-import { PatrolAIComponent } from './Components/PatrolAIComponent';
-import { UnitState } from './Components/UnitComponent';
-import { MonestEntity } from './Entities/MonestEntity';
-import { NPCEntity } from './Entities/NPCEntity';
-import { PlayerEntity } from './Entities/PlayerEntity';
+import { BoxCollider, game, instantiate, Label, Node, Prefab, SphereCollider, Texture2D, UIOpacity, v3 } from 'cc';
 import { TransferEntity } from './Entities/TransferEntity';
+import { EntityType } from './Components/BaseComponent';
+import { BundleName } from '../Constants';
+import { PlayerEntity } from './Entities/PlayerEntity';
 import { EntityUtils } from './EntityUtils';
-const { ccclass, property } = _decorator;
+import { UnitState } from './Components/UnitComponent';
+import { NPCEntity } from './Entities/NPCEntity';
+import MovieClip from '../Utils/MovieClip';
+import EntityLayer from '../3rd/map/layer/EntityLayer';
+import { NavComponent } from './Components/NavComponent';
+import { PatrolAIComponent } from './Components/PatrolAIComponent';
+import { MonestEntity } from './Entities/MonestEntity';
+import { InteractiveState, NPCInteractiveComponent } from './Components/NPCInteractiveComponent';
+import { ResManager } from '../../../Framework/Scripts/Managers/ResManager';
+import { GameDataManager } from '../GameDataManager';
 
 export class EntityFactory {
     public static autoID: number = 1;
@@ -53,9 +52,9 @@ export class EntityFactory {
         // end
 
         // ShapeComponent
-        entity.shapeComponent.radius = 20; // 从配置表里面读取;
-        entity.shapeComponent.width = 60; 
-        entity.shapeComponent.height = 80;
+        entity.shapeComponent.radius = GameDataManager.Instance.charactorConfig[roleId].radius; // 从配置表里面读取;
+        entity.shapeComponent.width = GameDataManager.Instance.charactorConfig[roleId].width; 
+        entity.shapeComponent.height = GameDataManager.Instance.charactorConfig[roleId].height;
         // end
         
     }
@@ -152,9 +151,9 @@ export class EntityFactory {
         // end
 
         // ShapeComponent
-        entity.shapeComponent.radius = 20; // 接入配置表
-        entity.shapeComponent.width = 60;
-        entity.shapeComponent.height = 80;
+        entity.shapeComponent.radius = GameDataManager.Instance.npcConfig[entity.baseComponent.subTypeID].radius; // 接入配置表
+        entity.shapeComponent.width = GameDataManager.Instance.npcConfig[entity.baseComponent.subTypeID].width;
+        entity.shapeComponent.height = GameDataManager.Instance.npcConfig[entity.baseComponent.subTypeID].height;
         // end
 
         // NPC 交互
@@ -250,9 +249,9 @@ export class EntityFactory {
         // end
 
         // ShapeComponent
-        entity.shapeComponent.radius = 20;
-        entity.shapeComponent.width = 46; // 目前写死，后面写到配置文件
-        entity.shapeComponent.height = 60; 
+        entity.shapeComponent.radius = GameDataManager.Instance.monesterConfig[entity.baseComponent.subTypeID].radius;
+        entity.shapeComponent.width = GameDataManager.Instance.monesterConfig[entity.baseComponent.subTypeID].width; // 目前写死，后面写到配置文件
+        entity.shapeComponent.height = GameDataManager.Instance.monesterConfig[entity.baseComponent.subTypeID].height; 
         // entity.shapeComponent.shape.width = (tex as Texture2D).width / 5;
         // entity.shapeComponent.shape.height = (tex as Texture2D).height / 8;
         // end
@@ -332,8 +331,5 @@ export class EntityFactory {
 
 
 }
-
-
-
 
 

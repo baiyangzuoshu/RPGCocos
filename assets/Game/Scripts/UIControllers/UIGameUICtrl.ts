@@ -1,9 +1,10 @@
-import { _decorator, Component, Node, EventTouch, Vec2, v2, Vec3, v3, UITransform, Button } from 'cc';
+import { _decorator, Button, Component, EventTouch, Node, Texture2D, UITransform, v2, v3, Vec2, Vec3 } from 'cc';
 import { EventManager } from '../../../Framework/Scripts/Managers/EventManager';
 import { UIComponent } from '../../../Framework/Scripts/UI/UIComponent';
+const { ccclass, property } = _decorator;
+
 import { UIGameEvent } from '../Constants';
 import { ControlMode } from '../World/Components/RoleComponent';
-const { ccclass, property } = _decorator;
 
 @ccclass('UIGameUICtrl')
 export class UIGameUICtrl extends UIComponent {
@@ -162,6 +163,3 @@ export class UIGameUICtrl extends UIComponent {
         EventManager.Instance.Emit(UIGameEvent.UILoginOut, null);
     }
 }
-
-
-

@@ -1,10 +1,11 @@
-import { Component, Node, TextAsset, find, Prefab, NodePool } from 'cc';
+import { Component, Node, Prefab, TextAsset, UI, find } from 'cc';
 import { PoolManager } from '../../Framework/Scripts/Managers/PoolManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
-import { GameDataManager } from '../GameDataManager';
-import { BundleName, UIView } from './Constants';
+import { BundleName } from './Constants';
 import { GameController } from './GameController';
+import { GameDataManager } from './GameDataManager';
+
 
 
 export class GameApp extends Component {
@@ -20,11 +21,16 @@ export class GameApp extends Component {
     }
 
     public Init(): void {
-        GameDataManager.Instance.Init();
+        
     }
 
     public async EnterGame() {
         console.log("EnterGame #######");
+
+        // 加载游戏配置表
+        await GameDataManager.Instance.Init();
+        // end
+
         // 注册一个我们的导航器,负责流程导航
         this.node.addComponent(GameController).Init();
         // end
@@ -34,7 +40,8 @@ export class GameApp extends Component {
         // await SceneMgr.Instance.IE_RunScene("Main");
         // end
 
-        
+        //加载我们的游戏数据
+        // end 
 
         // 加载我们的登录的资源
         await ResManager.Instance.IE_GetAsset(BundleName.GUI, "UILogin", Prefab);

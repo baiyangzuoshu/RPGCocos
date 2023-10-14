@@ -20,7 +20,7 @@ export class MapViewLoader extends Component {
 
     private InitWithSingle(mapParams: MapParams):void {
 
-        console.log("InitWithSingle ######");
+        // console.log("InitWithSingle ######");
         var spriteFrame: SpriteFrame = new SpriteFrame();
 		spriteFrame.texture = mapParams.bgTex;
 		this.bgImg.spriteFrame = spriteFrame;

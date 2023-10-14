@@ -19,7 +19,6 @@ export class PlayerEntity {
     lifeAttrComponent: LifeAttrComponent = new LifeAttrComponent();
     attackComponent: AttackComponent = new AttackComponent();
     trackAttack: TrackAttackComponent = new TrackAttackComponent();
-    
     // userInfoComponent: UserInfoComponnet = new UserInfoComponnet();
     // uname, uid, usex, 装备; ...
 }

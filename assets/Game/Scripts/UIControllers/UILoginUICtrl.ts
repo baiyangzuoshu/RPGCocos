@@ -1,14 +1,14 @@
-import { _decorator, Component, Node, EditBox } from 'cc';
+import { _decorator, Component, EditBox, Node } from 'cc';
 import { EventManager } from '../../../Framework/Scripts/Managers/EventManager';
-import { SceneManager } from '../../../Framework/Scripts/Managers/SceneManager';
 import { UIManager } from '../../../Framework/Scripts/Managers/UIManager';
 import { UIComponent } from '../../../Framework/Scripts/UI/UIComponent';
-import { MapLoadModel } from '../3rd/map/base/MapLoadModel';
-import { BundleName, UIGameEvent, UIView } from '../Constants';
-import { GameController } from '../GameController';
 const { ccclass, property } = _decorator;
+
+import { UIGameEvent, UIView } from '../Constants';
+
 @ccclass('UILoginUICtrl')
 export class UILoginUICtrl extends UIComponent {
+    
     private unameEditor: EditBox = null;
     private upwdEditor: EditBox = null;
 
@@ -37,6 +37,5 @@ export class UILoginUICtrl extends UIComponent {
     private OnGameRegister(): void {
 
     }
+    
 }
-
-

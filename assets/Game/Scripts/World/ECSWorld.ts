@@ -1,22 +1,22 @@
-import { _decorator, Component, Node, warn, Vec3 } from 'cc';
-import MapData from '../3rd/map/base/MapData';
+import { Component, Vec2, Vec3, math, warn } from 'cc';
 import MapParams from '../3rd/map/base/MapParams';
-import { MapItemType } from '../Constants';
-import { InteractiveState } from './Components/NPCInteractiveComponent';
-import { UnitState } from './Components/UnitComponent';
-import { NPCEntity } from './Entities/NPCEntity';
-import { PlayerEntity } from './Entities/PlayerEntity';
-import { TransferEntity } from './Entities/TransferEntity';
+import MapData from '../3rd/map/base/MapData';
 import { EntityFactory } from './EntityFactory';
-import { AttackSystem } from './Systems/AttackSystem';
-import { CollectHitSystem } from './Systems/CollectHitSystem';
-import { EntityAlphaSystem } from './Systems/EntityAlphaSystem';
+import { PlayerEntity } from './Entities/PlayerEntity';
 import { NavSystem } from './Systems/NavSystem';
-import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSystem';
-import { NPCInteractiveTestSystem } from './Systems/NPCInteractiveTestSystem';
-import { PatrolAISystem } from './Systems/PatrolAISystem';
-import { TrackAttackSystem } from './Systems/TrackAttackSystem';
 import { TransferSystem } from './Systems/TransferSystem';
+import { TransferEntity } from './Entities/TransferEntity';
+import { EntityAlphaSystem } from './Systems/EntityAlphaSystem';
+import { PatrolAISystem } from './Systems/PatrolAISystem';
+import { NPCEntity } from './Entities/NPCEntity';
+import { InteractiveState } from './Components/NPCInteractiveComponent';
+import { NPCInteractiveTestSystem } from './Systems/NPCInteractiveTestSystem';
+import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSystem';
+import { CollectHitSystem } from './Systems/CollectHitSystem';
+import { AttackSystem } from './Systems/AttackSystem';
+import { UnitState } from './Components/UnitComponent';
+import { TrackAttackSystem } from './Systems/TrackAttackSystem';
+
 
 export class ECSWorld extends Component {
 
@@ -528,13 +528,11 @@ export class ECSWorld extends Component {
         // 追踪攻击对象
         this.EntityTrackAttackUpdate(dt);
         // end
+
         // 攻击计算迭代
         this.EntityAttackSystemUpdate(dt);
         // end
     }
 }
-
-
-
 
 

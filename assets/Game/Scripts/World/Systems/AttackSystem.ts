@@ -9,7 +9,7 @@ import { EntityUtils } from "../EntityUtils";
 import MovieClip from "../../Utils/MovieClip";
 import { DamageCalcSystem } from "./DamageCalcSystem";
 import { ECSWorld } from "../ECSWorld";
-import { GameDataManager } from "../../../GameDataManager";
+import { GameDataManager } from "../../GameDataManager";
 import { PoolManager } from "../../../../Framework/Scripts/Managers/PoolManager";
 
 export class AttackSystem {

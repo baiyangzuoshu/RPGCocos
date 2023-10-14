@@ -8,33 +8,19 @@
 //  - [Chinese] https://docs.cocos.com/creator/manual/zh/scripting/life-cycle-callbacks.html
 //  - [English] http://www.cocos2d-x.org/docs/creator/manual/en/scripting/life-cycle-callbacks.html
 
-import { Node,Component, _decorator } from "cc";
+import { Node, Component} from "cc";
 
-const { ccclass, property } = _decorator;
 
 /**
  * 物体层
  */
- @ccclass('EntityLayer')
 export default class EntityLayer extends Component {
 
-
-
-    // LIFE-CYCLE CALLBACKS:
-
-    // onLoad () {}
-
-    start () {
-
-    }
-
-    update (dt) 
-    {
+    update (dt)  {
        this.sortZindex(); 
     }
 
-    public clear()
-    {
+    public clear() {
         
     }
 

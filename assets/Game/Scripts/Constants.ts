@@ -1,16 +1,20 @@
+
+
 export enum BundleName {
-    GUI="GUI",
-    MapData="MapData",
-    MapBg="MapBg",
-    Map="Map",
-    Charactors="Charactors"
+    GUI = "GUI",
+    MapData = "MapData",
+    MapBg = "MapBg",
+    Map = "Map",
+    Charactors = "Charactors",
+    Datas = "Datas",
 }
 
+
 export enum UIView {
-    UILoading="UILoading",
-    UILogin="UILogin",
-    UIGame="UIGame",
-} 
+    UILoading = "UILoading",
+    UILogin = "UILogin",
+    UIGame = "UIGame",
+}
 
 export enum UIGameEvent {
     UITouchNav = "UITouchNav",
@@ -46,18 +50,9 @@ export enum ServerReturnEvent {
     TrackAttack = 11, // 追踪攻击,
 }
 
-export enum EntityName {
-    NPC="npc",
-    Monster="monster",
-    Transfer="transfer",
-    SpawnPoint="spawnPoint",
-    Player="Player",
 
-}
 
-export enum MapItemType {   
-    spawnPoint="spawnPoint",
-    npc="npc",
-    monster="monster",
-    transfer="transfer",
-}
+
+
+
+
