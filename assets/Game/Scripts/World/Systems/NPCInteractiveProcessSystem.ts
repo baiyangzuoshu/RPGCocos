@@ -14,7 +14,7 @@ export class NPCInteractiveProcessSystem {
         npcInteractiveComponent.stepIndex ++;
 
         baseComponent.gameObject.getChildByName("TalkBoard").active = false;
-        
+
         if(npcInteractiveComponent.stepIndex >= npcInteractiveComponent.actionSeq.length) {
             npcInteractiveComponent.interactiveState = InteractiveState.closed;
             npcInteractiveComponent.stepIndex = -1;
@@ -26,8 +26,6 @@ export class NPCInteractiveProcessSystem {
             return;            
         }
 
-       
-        
         var curState = npcInteractiveComponent.actionSeq[npcInteractiveComponent.stepIndex];
         var curId = npcInteractiveComponent.actionId[npcInteractiveComponent.stepIndex];
         npcInteractiveComponent.interactiveState = curState;

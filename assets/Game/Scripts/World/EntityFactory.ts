@@ -8,7 +8,6 @@ import { EntityType } from './Components/BaseComponent';
 import { NavComponent } from './Components/NavComponent';
 import { InteractiveState, NPCInteractiveComponent } from './Components/NPCInteractiveComponent';
 import { PatrolAIComponent } from './Components/PatrolAIComponent';
-import { RectShapeComponent, RoundShapeComponent, ShapeType } from './Components/ShapeComponent';
 import { UnitState } from './Components/UnitComponent';
 import { MonestEntity } from './Entities/MonestEntity';
 import { NPCEntity } from './Entities/NPCEntity';
@@ -54,14 +53,11 @@ export class EntityFactory {
         // end
 
         // ShapeComponent
-        var b = entity.baseComponent.gameObject.getChildByName("FootTrigger").getComponent(BoxCollider)
-        if(b) {
-            entity.shapeComponent.type = ShapeType.Rect;
-            entity.shapeComponent.shape = new RectShapeComponent();
-            entity.shapeComponent.shape.width = b.size.x;
-            entity.shapeComponent.shape.height = b.size.y;
-        }
+        entity.shapeComponent.radius = 20; // 从配置表里面读取;
+        entity.shapeComponent.width = 60; 
+        entity.shapeComponent.height = 80;
         // end
+        
     }
 
     // 来自于网络, {playerType: 1, selectRoleId: 0, controlType: 1, controlMode: 2, x: 位置, y: 位置, state}
@@ -156,10 +152,9 @@ export class EntityFactory {
         // end
 
         // ShapeComponent
-        entity.shapeComponent.type = ShapeType.Rect;
-        entity.shapeComponent.shape = new RectShapeComponent();
-        entity.shapeComponent.shape.width = (tex as Texture2D).width / 5;
-        entity.shapeComponent.shape.height = (tex as Texture2D).height / 12;
+        entity.shapeComponent.radius = 20; // 接入配置表
+        entity.shapeComponent.width = 60;
+        entity.shapeComponent.height = 80;
         // end
 
         // NPC 交互
@@ -255,10 +250,11 @@ export class EntityFactory {
         // end
 
         // ShapeComponent
-        entity.shapeComponent.type = ShapeType.Rect;
-        entity.shapeComponent.shape = new RectShapeComponent();
-        entity.shapeComponent.shape.width = (tex as Texture2D).width / 5;
-        entity.shapeComponent.shape.height = (tex as Texture2D).height / 8;
+        entity.shapeComponent.radius = 20;
+        entity.shapeComponent.width = 46; // 目前写死，后面写到配置文件
+        entity.shapeComponent.height = 60; 
+        // entity.shapeComponent.shape.width = (tex as Texture2D).width / 5;
+        // entity.shapeComponent.shape.height = (tex as Texture2D).height / 8;
         // end
 
         if(!entity.monestComponent.isPatrol) {
@@ -315,16 +311,16 @@ export class EntityFactory {
         // ShapeComponent, 原版资源用的是3D 碰撞器，最好用2D的;
         var b = entity.baseComponent.gameObject.getComponent(BoxCollider)
         if(b) {
-            entity.shapeComponent.type = ShapeType.Rect;
-            entity.shapeComponent.shape = new RectShapeComponent();
-            entity.shapeComponent.shape.width = b.size.x;
-            entity.shapeComponent.shape.height = b.size.y;
+            entity.shapeComponent.radius = entity.shapeComponent.height;
+            entity.shapeComponent.width = b.size.x;
+            entity.shapeComponent.height = b.size.y;
         }
         else {
             var c = entity.baseComponent.gameObject.getComponent(SphereCollider);
             if(c) {
-                entity.shapeComponent.shape = new RoundShapeComponent();
-                entity.shapeComponent.shape.radius = c.radius; 
+                entity.shapeComponent.radius = c.radius; 
+                entity.shapeComponent.width = c.radius; 
+                entity.shapeComponent.height = c.radius; 
             }
         }
         // console.log(entity.shapeComponent.shape);

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, warn } from 'cc';
+import { _decorator, Component, Node, warn, Vec3 } from 'cc';
 import MapData from '../3rd/map/base/MapData';
 import MapParams from '../3rd/map/base/MapParams';
 import { MapItemType } from '../Constants';
@@ -7,6 +7,7 @@ import { NPCEntity } from './Entities/NPCEntity';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { TransferEntity } from './Entities/TransferEntity';
 import { EntityFactory } from './EntityFactory';
+import { CollectHitSystem } from './Systems/CollectHitSystem';
 import { EntityAlphaSystem } from './Systems/EntityAlphaSystem';
 import { NavSystem } from './Systems/NavSystem';
 import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSystem';
@@ -25,6 +26,30 @@ export class ECSWorld extends Component {
     private monsterEntities = {};
     private transferEntities = {};
 
+    private worldEntities = {}; // entityId ---> entity的一个映射
+
+    public GetEntityById(entityID: number): any {
+        if(this.worldEntities[entityID]) {
+            return this.worldEntities[entityID];
+        }
+
+        warn("entityID: " + entityID + "can not find in worldEnities !!!")
+        return null;
+    }
+
+    public EntityCollectHit(pos: Vec3): number {
+        for(let key in this.worldEntities) {
+            var entity = this.worldEntities[key];
+            if(!entity) {
+                continue;
+            } 
+
+            if(CollectHitSystem.CollectHitTest(pos, entity.transformComponent, entity.shapeComponent)) {
+                return entity.baseComponent.entityID;                
+            }
+        }
+        return 0; // 表示什么都没有点击到
+    }
 
     public GetPlayerEntityByID(entityID: number): PlayerEntity {
         if(this.playerEntities[entityID]) {
@@ -59,7 +84,7 @@ export class ECSWorld extends Component {
 
         this.spawnPoints = {};
 
-
+        this.worldEntities = {};
     }
 
     public RemovePlayerEntityInWorld(entityID: number): void {
@@ -72,6 +97,7 @@ export class ECSWorld extends Component {
         // 从我们的表里移除出来
         // this.playerEntities[entityID] = null;
         delete this.playerEntities[entityID];
+        delete this.worldEntities[entityID];
         // end
 
         // 释放entity的数据
@@ -113,7 +139,7 @@ export class ECSWorld extends Component {
                 entity = await EntityFactory.CreateTransferEntity(mapItem);
                 this.transferEntities[entity.baseComponent.entityID] = entity;
             }
-            
+            this.worldEntities[entity.baseComponent.entityID] = entity;
         }
     }
 

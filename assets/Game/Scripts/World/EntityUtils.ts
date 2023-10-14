@@ -162,6 +162,8 @@ export class EntityUtils  {
             unitComponent.movieClip.node.scale = scale;
         }
     }
+
+    
 }
 
 

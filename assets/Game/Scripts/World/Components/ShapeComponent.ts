@@ -1,23 +1,7 @@
 
-export enum ShapeType {
-    None = 0,
-    Round = 1,
-    Rect = 2,
-}
-
-export class RoundShapeComponent {
-    radius: number = 0;
-}
-
-
-export class RectShapeComponent {
-    width: number = 0;
-    height: number = 0;
-}
-
 
 export class ShapeComponent {
-    type: ShapeType = ShapeType.None;
-
-    shape: RoundShapeComponent | RectShapeComponent = null;
+    public width: number = 0; // 角色图像的宽度, 
+    public height: number = 0; // 角色图像的高度, 从配置表里面读取
+    public radius: number = 0; // 角色在地图上的逻辑范围;
 }

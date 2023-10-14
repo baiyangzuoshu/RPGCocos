@@ -11,6 +11,8 @@ import { BundleName, UIGameEvent, ServerReturnEvent, GameEvent } from './Constan
 import { DeviceParams } from './DeviceParams';
 import { GameCamera } from './GameCamera';
 import { MapViewLoader } from './MapViewLoader';
+import { EntityType } from './World/Components/BaseComponent';
+import { ControlMode } from './World/Components/RoleComponent';
 import { UnitState } from './World/Components/UnitComponent';
 import { ECSWorld } from './World/ECSWorld';
 import { EntityFactory } from './World/EntityFactory';
@@ -142,8 +144,27 @@ export class FightManager extends Component {
         // 服务端根据哪个socket ----> 是哪个玩家对应的socket, ===>id;
         // end
 
+        // 测试代码: 来做物体的拾取，计算出来当前我们点击到的是那些物体;
+        var hitEntityId = this.ecsWorld.EntityCollectHit(pos);
+        // end
+
         // 测试(网络数据模块来调用，由于没有网络，所以我们这里来接入)
-        EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
+        if(hitEntityId === 0) {
+            EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
+        }
+        else {
+            // 测试，发送数据给客户端，你点击到了哪个entityId;
+            // end
+            var hitEntity = this.ecsWorld.GetEntityById(hitEntityId);
+            if(hitEntity !== null) {
+                console.log(hitEntity.baseComponent.name);
+            }
+
+            // 临时代码
+            if(hitEntity.baseComponent.type === EntityType.Transfer) {
+                EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
+            }
+        }        
         // end
     }
 
@@ -162,6 +183,8 @@ export class FightManager extends Component {
         if(!entity) { // 哪个玩家有摇杆操作;
             return;
         }
+
+        entity.roleComponent.controlMode = ControlMode.joystick;
 
         if(event.dir.x === 0 && event.dir.y === 0) {
             NavSystem.StopAction(entity.navComponent);    
@@ -214,8 +237,13 @@ export class FightManager extends Component {
         // 调用寻路了
         var pos = event.pos;
         var playerId = event.playerId;
-
+        
         var entity = this.ecsWorld.GetPlayerEntityByID(playerId);
+        if(!entity) {
+            return;
+        }
+        
+        entity.roleComponent.controlMode = ControlMode.touch;
         // console.log(entity);
         var roadNodeArr:RoadNode[] = PathFindingAgent.instance.seekPath2(entity.transformComponent.pos.x, entity.transformComponent.pos.y, pos.x, pos.y);
         // console.log(roadNodeArr);
