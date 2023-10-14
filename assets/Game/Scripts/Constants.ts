@@ -20,6 +20,7 @@ export enum UIGameEvent {
     UILoginIn = "UILoginIn",
     UIJoystick = "UIJoystick",
     UIOpenEquipShop = "UIOpenEquipShop",
+    UIAttack = "UIAttack",
 }
 
 export enum GameEvent {
@@ -35,6 +36,7 @@ export enum ServerReturnEvent {
     LoginInRet = 5, // 登入游戏
     LoginOutRet = 6, // 登出游戏
     JoystickEvent = 7, // 摇杆事件
+    PlayerAttack = 8, // 玩家角色发起攻击
 }
 
 export enum EntityName {

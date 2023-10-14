@@ -1,4 +1,5 @@
-import { Component, Node, TextAsset, find, Prefab } from 'cc';
+import { Component, Node, TextAsset, find, Prefab, NodePool } from 'cc';
+import { PoolManager } from '../../Framework/Scripts/Managers/PoolManager';
 import { ResManager } from '../../Framework/Scripts/Managers/ResManager';
 import { UIManager } from '../../Framework/Scripts/Managers/UIManager';
 import { GameDataManager } from '../GameDataManager';
@@ -39,6 +40,7 @@ export class GameApp extends Component {
         await ResManager.Instance.IE_GetAsset(BundleName.GUI, "UILogin", Prefab);
         // end 
 
+        await PoolManager.Instance.AddNodePoolByPath(BundleName.Charactors, "Prefabs/RoadSign");
         // 删除掉启动画面
         var boot = find("Canvas/UIBoot");
         boot.destroy();
@@ -46,6 +48,7 @@ export class GameApp extends Component {
 
         UIManager.Instance.IE_ShowUIView("UILogin");
     }
+    
 }
 
 

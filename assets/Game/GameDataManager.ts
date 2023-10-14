@@ -28,6 +28,19 @@ export class GameDataManager {
 
         return this.NpcTalkData[1000]; //如果id没有数据，就用默认数据
     }
+
+    private GameAttackData = {
+        90001: {attackR: 80, IsAreaAttack: false, attackEffectName: "Prefabs/RoadSign"},
+        90002: {attackR: 80, IsAreaAttack: true, attackEffectName: "Prefabs/RoadSign"},
+    }
+
+    public GetAttackConfigData(attackId: number): any {
+        if(this.GameAttackData[attackId]) {
+            return this.GameAttackData[attackId];
+        }
+        
+        this.GameAttackData[90001];
+    }
 }
 
 

@@ -16,6 +16,7 @@ import { ControlMode } from './World/Components/RoleComponent';
 import { UnitState } from './World/Components/UnitComponent';
 import { ECSWorld } from './World/ECSWorld';
 import { EntityFactory } from './World/EntityFactory';
+import { AttackSystem } from './World/Systems/AttackSystem';
 import { NavSystem } from './World/Systems/NavSystem';
 const { ccclass, property } = _decorator;
 
@@ -40,6 +41,7 @@ export class FightManager extends Component {
     }
 
     private InitUIEventListeners(): void {
+        EventManager.Instance.AddEventListener(UIGameEvent.UIAttack, this.OnUIAttackEvent, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UIJoystick, this.OnUIJoystickEvent, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
         EventManager.Instance.AddEventListener(UIGameEvent.UISwitchRole, this.OnUISwitchRole, this);
@@ -47,6 +49,7 @@ export class FightManager extends Component {
     }
 
     private InitReturnEventListeners(): void {
+        this.fightEventProcess[ServerReturnEvent.PlayerAttack] = this.OnProcessPlayerAttackEvent;
         this.fightEventProcess[ServerReturnEvent.JoystickEvent] = this.OnProcessJoystickEvent;
         this.fightEventProcess[ServerReturnEvent.SwitchRole] = this.OnProcessSwitchRoleEvent;
         this.fightEventProcess[ServerReturnEvent.ChangeMap] = this.OnProcessChangeMapEvent;
@@ -55,7 +58,8 @@ export class FightManager extends Component {
     }
 
     private RemoveUIEventListeners(): void {
-        EventManager.Instance.AddEventListener(UIGameEvent.UIJoystick, this.OnUIJoystickEvent, this);
+        EventManager.Instance.RemoveEventListener(UIGameEvent.UIAttack, this.OnUIAttackEvent, this);
+        EventManager.Instance.RemoveEventListener(UIGameEvent.UIJoystick, this.OnUIJoystickEvent, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UISwitchRole, this.OnUISwitchRole, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
@@ -65,6 +69,33 @@ export class FightManager extends Component {
     protected onDestroy(): void {
         // console.log("onDestroy exit &&&&&&&&&");
         this.RemoveUIEventListeners();
+    }
+
+    private OnUIAttackEvent(eventName: string, udata): void {
+        var attackId: number = udata as number;
+
+        if(this.selfPlayerEntity === null) {
+            return;
+        }
+
+        if(this.selfPlayerEntity.unitComponent.state === UnitState.attack ||
+            this.selfPlayerEntity.unitComponent.state === UnitState.death || 
+            this.selfPlayerEntity.unitComponent.state === UnitState.none) {
+            return;
+        }
+
+        // 发数据给服务器: playerId, 发起攻击请求， 攻击的attackId;
+        // end 
+
+        // 测试模拟服务器就会给你返回一个数据 允许你发起攻击;
+        // ret = { eventType: playerId: xxxx,  attackId: xxxx}
+        var serverRetData = {
+            eventType: ServerReturnEvent.PlayerAttack,
+            playerId: this.selfPlayerEntity.baseComponent.entityID, 
+            attackId: attackId,
+        };
+        EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverRetData);
+        // end
     }
 
     private OnUIJoystickEvent(eventName: string, udata: any): void {
@@ -176,6 +207,32 @@ export class FightManager extends Component {
         if(func) {
             func.call(this, event);    
         }
+    }
+
+    private OnProcessPlayerAttackEvent(event): void {
+        // console.log(event);
+        var entity = this.ecsWorld.GetPlayerEntityByID(event.playerId);
+        if(!entity) { // 找不到玩家;
+            return;
+        }
+        
+        // 停止导航
+        NavSystem.StopAction(entity.navComponent);
+        // end
+
+        // 开始攻击, 如果是对点的，你就是attackTarget, 如果是范围杀伤;
+
+        var attackTarget = null;
+        if(!AttackSystem.IsAreaAttack(event.attackId)) {
+            attackTarget = this.ecsWorld.GetNearastMonestAttackEntity(entity, event.attackId);
+        }
+        
+        AttackSystem.StartAttackAction(event.attackId, attackTarget, 
+                                       entity.unitComponent, 
+                                       entity.baseComponent, 
+                                       entity.transformComponent, 
+                                       entity.attackComponent);
+        // end
     }
 
     private OnProcessJoystickEvent(event): void {
@@ -433,5 +490,6 @@ export class FightManager extends Component {
         this.isLoading = false;
     }
 }
+
 
 

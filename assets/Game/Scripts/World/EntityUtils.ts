@@ -1,8 +1,8 @@
-import { Vec3, _decorator } from 'cc';
+import { Vec3, _decorator, v3 } from 'cc';
 import { UnitComponent, UnitState } from './Components/UnitComponent';
 import { BaseComponent, EntityType } from './Components/BaseComponent';
 import MovieClip from '../Utils/MovieClip';
-
+import { TransformComponent } from './Components/TransformComponent';
 
 
 export class EntityUtils  {
@@ -83,8 +83,10 @@ export class EntityUtils  {
                 EntityUtils.SetPlayerEntityState(state, unitComponent, baseComponent);
             break;
             case EntityType.NPC:
+            case EntityType.Monster:
                 EntityUtils.SetNPCEntityState(state, unitComponent, baseComponent);
             break;
+
         }
         
     }
@@ -95,17 +97,18 @@ export class EntityUtils  {
                                      baseComponent: BaseComponent) {
         switch(baseComponent.type) {
             case EntityType.Player:
-                EntityUtils.SetPlayerEntityDirection(value, unitComponent, baseComponent);
+                EntityUtils.SetPlayerEntityDirection(value, unitComponent/*, baseComponent*/);
             break;
             case EntityType.NPC:
-                EntityUtils.SetNPCEntityDirection(value, unitComponent, baseComponent);
+            case EntityType.Monster:
+                EntityUtils.SetNPCEntityDirection(value, unitComponent/*, baseComponent*/);
             break;
         }
     }
 
     private static SetPlayerEntityDirection(value: number, 
                                            unitComponent: UnitComponent, 
-                                           baseComponent: BaseComponent) {
+                                           /*baseComponent: BaseComponent*/) {
         unitComponent.direction = value;
 
         switch(unitComponent.direction)
@@ -146,7 +149,7 @@ export class EntityUtils  {
 
     private static SetNPCEntityDirection(value: number, 
                                         unitComponent: UnitComponent, 
-                                        baseComponent: BaseComponent) {
+                                        /*baseComponent: BaseComponent*/) {
         unitComponent.direction = value;
 
         if(value > 4) {
@@ -163,7 +166,21 @@ export class EntityUtils  {
         }
     }
 
-    
+    public static LookAtTarget(unit: UnitComponent,
+                               baseComponent: BaseComponent,
+                               selfTransform: TransformComponent, 
+                               targetTransform: TransformComponent): void {
+        
+        var dir = v3();
+        Vec3.subtract(dir, targetTransform.pos, selfTransform.pos);
+        
+        // 计算出来我们的角色方向
+        var moveAngle:number = Math.atan2(dir.y, dir.x); // 【-180， 180】
+        var dire:number = Math.round((-moveAngle + Math.PI) / (Math.PI / 4));
+        var direction = dire > 5 ? dire-6 : dire+2;
+        // var flag = (direction === unitComponent.direction)? true : false
+        EntityUtils.SetEntityDirection(direction, unit, baseComponent);
+    }
 }
 
 

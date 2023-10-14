@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, EventTouch, Vec2, v2, Vec3, v3, UITransform } from 'cc';
+import { _decorator, Component, Node, EventTouch, Vec2, v2, Vec3, v3, UITransform, Button } from 'cc';
 import { EventManager } from '../../../Framework/Scripts/Managers/EventManager';
 import { UIComponent } from '../../../Framework/Scripts/UI/UIComponent';
 import { UIGameEvent } from '../Constants';
@@ -51,6 +51,10 @@ export class UIGameUICtrl extends UIComponent {
         this.AddButtonListener("UILayer/TopToolbar/LoginBtn", this, this.OnLoginOut);
         // end
 
+        // 攻击按钮的响应
+        this.AddButtonListener("UILayer/90001", this, this.OnAttackTypeClick);
+        this.AddButtonListener("UILayer/90002", this, this.OnAttackTypeClick);
+        // end
 
         // 地图切换按钮响应
         this.AddButtonListener("UILayer/MapBar/Content/MapItem1", this, this.OnUIGotoMap);
@@ -69,6 +73,12 @@ export class UIGameUICtrl extends UIComponent {
 
     protected onDestroy(): void {
         EventManager.Instance.RemoveEventListener(UIGameEvent.UIOpenEquipShop, this.OnOpenEquipShop, this);    
+    }
+
+    private OnAttackTypeClick(target: Button): void {
+        var AttackId: number = Number(target.node.name);
+        // console.log(AttackId, target.node.name);
+        EventManager.Instance.Emit(UIGameEvent.UIAttack, AttackId);
     }
 
     private OnOpenEquipShop(): void {

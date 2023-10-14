@@ -3,10 +3,12 @@ import MapData from '../3rd/map/base/MapData';
 import MapParams from '../3rd/map/base/MapParams';
 import { MapItemType } from '../Constants';
 import { InteractiveState } from './Components/NPCInteractiveComponent';
+import { UnitState } from './Components/UnitComponent';
 import { NPCEntity } from './Entities/NPCEntity';
 import { PlayerEntity } from './Entities/PlayerEntity';
 import { TransferEntity } from './Entities/TransferEntity';
 import { EntityFactory } from './EntityFactory';
+import { AttackSystem } from './Systems/AttackSystem';
 import { CollectHitSystem } from './Systems/CollectHitSystem';
 import { EntityAlphaSystem } from './Systems/EntityAlphaSystem';
 import { NavSystem } from './Systems/NavSystem';
@@ -35,6 +37,32 @@ export class ECSWorld extends Component {
 
         warn("entityID: " + entityID + "can not find in worldEnities !!!")
         return null;
+    }
+
+    public GetNearastMonestAttackEntity(entity:PlayerEntity, attackId): void {
+        var attackR = AttackSystem.GetPlayerEntityAttackR(entity, attackId);
+        console.log(attackR);
+
+        var minDis = attackR * attackR;
+        var target = null;
+
+        for (let key in this.monsterEntities) { // AOI
+            if(this.monsterEntities[key] === null) {
+                continue;
+            }
+
+            if(this.monsterEntities[key].unitComponent.state === UnitState.death || this.monsterEntities[key].unitComponent.state === UnitState.none) {
+                continue;
+            }
+
+            var len = Vec3.squaredDistance(entity.transformComponent.pos, this.monsterEntities[key].transformComponent.pos);
+            if(len <= minDis) {
+                target = this.monsterEntities[key];
+                minDis = len;
+            }
+        }
+
+        return target;
     }
 
     public EntityCollectHit(pos: Vec3): number {
@@ -292,6 +320,37 @@ export class ECSWorld extends Component {
         }
     }
 
+    private EntityAttackSystemUpdate(dt: number): void {
+        for (let key in this.playerEntities) {
+            if(!this.playerEntities[key]) {
+                continue;
+            }
+
+            if(this.playerEntities[key].attackComponent.attackId === 0) {
+                continue;
+            }
+
+            AttackSystem.Update(dt, this.playerEntities[key].attackComponent, 
+                this.playerEntities[key].unitComponent, 
+                this.playerEntities[key].baseComponent);
+        }
+
+        // 遍历怪物的攻击
+        for (let key in this.monsterEntities) {
+            if(!this.monsterEntities[key]) {
+                continue;
+            }
+
+            if(this.monsterEntities[key].attackComponent.attackId === 0) {
+                continue;
+            }
+
+            AttackSystem.Update(dt, this.monsterEntities[key].attackComponent, 
+                this.monsterEntities[key].unitComponent, 
+                this.monsterEntities[key].baseComponent);
+        }
+    }
+
     private EntityAlphaSystemUpdate(): void {
         for (let key in this.playerEntities) {
             if(!this.playerEntities[key]) {
@@ -395,7 +454,12 @@ export class ECSWorld extends Component {
         // 客户端的NPC对话进程迭代计算
         this.NPCInteractiveProcessUpdate(dt);
         // end
+
+        // 攻击计算迭代
+        this.EntityAttackSystemUpdate(dt);
+        // end
     }
 }
+
 
 
