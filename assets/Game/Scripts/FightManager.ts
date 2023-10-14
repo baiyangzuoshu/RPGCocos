@@ -49,6 +49,7 @@ export class FightManager extends Component {
     }
 
     private InitReturnEventListeners(): void {
+        this.fightEventProcess[ServerReturnEvent.EntityDead] = this.OnProcessEntityDeadEvent;
         this.fightEventProcess[ServerReturnEvent.PlayerAttack] = this.OnProcessPlayerAttackEvent;
         this.fightEventProcess[ServerReturnEvent.JoystickEvent] = this.OnProcessJoystickEvent;
         this.fightEventProcess[ServerReturnEvent.SwitchRole] = this.OnProcessSwitchRoleEvent;
@@ -209,6 +210,24 @@ export class FightManager extends Component {
         }
     }
 
+    private OnProcessEntityDeadEvent(event): void {
+        var entityId = event.entityId;
+        var enrity = this.ecsWorld.GetEntityById(entityId);
+        if(enrity === null) {
+            return;
+        }
+
+        // entity就要销毁
+        enrity.unitComponent.state = UnitState.death;
+        if(enrity.baseComponent.type === EntityType.Player) {
+            this.ecsWorld.DestroyPlayerEntityInWorld(entityId);
+        }
+        else if(enrity.baseComponent.type === EntityType.Monster) {
+            this.ecsWorld.DestroyMonestEntityInWorld(entityId);
+        }
+        // end
+    }
+
     private OnProcessPlayerAttackEvent(event): void {
         // console.log(event);
         var entity = this.ecsWorld.GetPlayerEntityByID(event.playerId);
@@ -313,7 +332,7 @@ export class FightManager extends Component {
     }
 
     private DeleteOtherEntity(entityId: number): void {
-        this.ecsWorld.RemovePlayerEntityInWorld(entityId);
+        this.ecsWorld.DestroyPlayerEntityInWorld(entityId);
     }
 
     public ClearFightScene(): void {

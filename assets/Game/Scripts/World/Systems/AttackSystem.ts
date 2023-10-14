@@ -7,10 +7,10 @@ import { UnitComponent, UnitState } from "../Components/UnitComponent";
 import { PlayerEntity } from "../Entities/PlayerEntity";
 import { EntityUtils } from "../EntityUtils";
 import MovieClip from "../../Utils/MovieClip";
+import { DamageCalcSystem } from "./DamageCalcSystem";
 import { ECSWorld } from "../ECSWorld";
 import { GameDataManager } from "../../../GameDataManager";
 import { PoolManager } from "../../../../Framework/Scripts/Managers/PoolManager";
-import { DamageCalcSystem } from "./DamageCalcSystem";
 
 export class AttackSystem {
 
@@ -101,6 +101,11 @@ export class AttackSystem {
                 if(AttackSystem.IsAreaAttack(attackComponent.attackId)) {
                     var targets = world.GetMonestEntitiesInAttackR(selfTransform.pos, attackR);
                     for(var i = 0; i < targets.length; i ++) {
+                        if(targets[i].unitComponent.state === UnitState.death || 
+                            targets[i].unitComponent.state === UnitState.none) {
+                            continue;
+                        }
+
                         if(AttackSystem.IsInAttackR(attackR, selfTransform, targets[i].transformComponent)) {
                             DamageCalcSystem.DamageOneTarget(attackValue, 
                                 targets[i].lifeAttrComponent, 
@@ -111,9 +116,12 @@ export class AttackSystem {
                 else {
                     if(attackComponent.attackTarget !== null) {
                         if(AttackSystem.IsInAttackR(attackR, selfTransform, attackComponent.attackTarget.transformComponent)) {
-                            DamageCalcSystem.DamageOneTarget(attackValue, 
-                                attackComponent.attackTarget.lifeAttrComponent,
-                                attackComponent.attackTarget.baseComponent);
+                            if(attackComponent.attackTarget.unitComponent.state !== UnitState.death && 
+                                attackComponent.attackTarget.unitComponent.state !== UnitState.none) {
+                                DamageCalcSystem.DamageOneTarget(attackValue, 
+                                    attackComponent.attackTarget.lifeAttrComponent,
+                                    attackComponent.attackTarget.baseComponent);
+                            }                            
                         }                        
                     }
                 }

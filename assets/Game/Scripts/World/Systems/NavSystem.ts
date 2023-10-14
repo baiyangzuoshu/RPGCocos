@@ -210,6 +210,10 @@ export class NavSystem {
             return;
         }*/
 
+        if(unitComponent.state !== UnitState.walk && unitComponent.state !== UnitState.idle) {
+            return;
+        }
+
         if(navComponent.joyStickDir !== null) { // 走的是摇杆的Update
             NavSystem.NavJoystickUpdate(dt, navComponent, unitComponent, transformComponent, baseComponent);
         } // end

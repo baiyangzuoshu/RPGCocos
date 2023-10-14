@@ -16,6 +16,7 @@ import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSyst
 import { NPCInteractiveTestSystem } from './Systems/NPCInteractiveTestSystem';
 import { PatrolAISystem } from './Systems/PatrolAISystem';
 import { TransferSystem } from './Systems/TransferSystem';
+
 export class ECSWorld extends Component {
 
     private spawnPoints = {};
@@ -138,7 +139,24 @@ export class ECSWorld extends Component {
         this.worldEntities = {};
     }
 
-    public RemovePlayerEntityInWorld(entityID: number): void {
+    public DestroyMonestEntityInWorld(entityID: number): void {
+        if(!this.monsterEntities[entityID]) {
+            return;
+        }
+
+        var entity = this.monsterEntities[entityID];
+
+        // 从我们的表里移除出来
+        // this.playerEntities[entityID] = null;
+        delete this.monsterEntities[entityID];
+        delete this.worldEntities[entityID];
+        // end
+
+        // 释放entity的数据
+        EntityFactory.DestoryEntityGameObject(entity);
+    }
+
+    public DestroyPlayerEntityInWorld(entityID: number): void {
         if(!this.playerEntities[entityID]) {
             return;
         }
@@ -284,7 +302,7 @@ export class ECSWorld extends Component {
             if(!this.playerEntities[key]) {
                 continue;
             }
-
+            
             if(this.playerEntities[key].navComponent.isWalking === false) {
                 continue;
             }
@@ -429,6 +447,11 @@ export class ECSWorld extends Component {
                     continue;
                 }
 
+                if(playerEntity.unitComponent.state === UnitState.death || 
+                    playerEntity.unitComponent.state === UnitState.none) {
+                    continue;
+                }
+
                 NPCInteractiveTestSystem.Update(npcEntity.shapeComponent, 
                                                 npcEntity.npcInteractiveComponent,
                                                 npcEntity.patrolAIComponent,
@@ -487,6 +510,7 @@ export class ECSWorld extends Component {
         // end
     }
 }
+
 
 
 
