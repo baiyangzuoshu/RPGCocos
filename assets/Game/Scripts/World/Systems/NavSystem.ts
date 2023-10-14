@@ -10,16 +10,17 @@ import PathFindingAgent from '../../3rd/map/road/PathFindingAgent';
 export class NavSystem {
     
     public static StartNavTouchAction(roadNodeArr: RoadNode[],
-                        navComponent: NavComponent/*, 
+                        navComponent: NavComponent, 
                         unitComponent: UnitComponent,
-                        baseComponent: BaseComponent*/): void {
+                        /*baseComponent: BaseComponent*/): void {
                             
         navComponent.isWalking = true; // 我们System迭代就可以移动了
         navComponent.nextIndex = 0; // 你的位置是当前的位置，你要从第1个开始
         navComponent.roadNodeArr = roadNodeArr;
         navComponent.passedTime = navComponent.walkTime = 0;
         navComponent.joyStickDir = null;
-        // unitComponent.state = UnitState.walk;
+
+        // unitComponent.state = UnitState.idle;
     }
 
     public static StartNavJoystickAction(dir: Vec2,

@@ -15,9 +15,11 @@ import { EntityType } from './World/Components/BaseComponent';
 import { ControlMode } from './World/Components/RoleComponent';
 import { UnitState } from './World/Components/UnitComponent';
 import { ECSWorld } from './World/ECSWorld';
+import { PlayerEntity } from './World/Entities/PlayerEntity';
 import { EntityFactory } from './World/EntityFactory';
 import { AttackSystem } from './World/Systems/AttackSystem';
 import { NavSystem } from './World/Systems/NavSystem';
+import { TrackAttackSystem } from './World/Systems/TrackAttackSystem';
 const { ccclass, property } = _decorator;
 
 export class FightManager extends Component {
@@ -49,6 +51,7 @@ export class FightManager extends Component {
     }
 
     private InitReturnEventListeners(): void {
+        this.fightEventProcess[ServerReturnEvent.TrackAttack] = this.OnProcessEntityTrackAttackEvent;
         this.fightEventProcess[ServerReturnEvent.EntityDead] = this.OnProcessEntityDeadEvent;
         this.fightEventProcess[ServerReturnEvent.PlayerAttack] = this.OnProcessPlayerAttackEvent;
         this.fightEventProcess[ServerReturnEvent.JoystickEvent] = this.OnProcessJoystickEvent;
@@ -182,6 +185,7 @@ export class FightManager extends Component {
 
         // 测试(网络数据模块来调用，由于没有网络，所以我们这里来接入)
         if(hitEntityId === 0) {
+            TrackAttackSystem.StopAction(this.selfPlayerEntity);
             EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
         }
         else {
@@ -192,10 +196,25 @@ export class FightManager extends Component {
                 console.log(hitEntity.baseComponent.name);
             }
 
+            // 如果我们点击到了monest
+            // 玩家追着我们的怪物来攻击;
+            if(hitEntity.baseComponent.type === EntityType.Monster) {
+                EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TrackAttack, playerId: this.selfPlayerEntity.baseComponent.entityID, targetId: hitEntity.baseComponent.entityID});
+            }
+            else { // 停止自动追击的迭代
+                if(this.selfPlayerEntity) {
+                    // 
+                    TrackAttackSystem.StartAction(this.selfPlayerEntity);
+                    // end
+                }
+            }
+            // end
+
             // 临时代码
             if(hitEntity.baseComponent.type === EntityType.Transfer) {
                 EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
             }
+            // end
         }        
         // end
     }
@@ -208,6 +227,25 @@ export class FightManager extends Component {
         if(func) {
             func.call(this, event);    
         }
+    }
+
+    private OnProcessEntityTrackAttackEvent(event): void {
+        var entityId = event.playerId;
+        var entity: PlayerEntity = this.ecsWorld.GetPlayerEntityByID(entityId);
+        if(entity === null) {
+            return;
+        }
+
+        entity.trackAttack.trackTarget = this.ecsWorld.GetEntityById(event.targetId);
+        if(entity.trackAttack.trackTarget === null) {
+            return;
+        } 
+
+        if(entity.trackAttack.trackTarget.unitComponent.state === UnitState.death || entity.trackAttack.trackTarget.unitComponent.state === UnitState.none) {
+            return;
+        }
+
+        TrackAttackSystem.StartAction(entity);
     }
 
     private OnProcessEntityDeadEvent(event): void {
@@ -327,7 +365,8 @@ export class FightManager extends Component {
             return;
         }
 
-        NavSystem.StartNavTouchAction(roadNodeArr, entity.navComponent);
+        AttackSystem.StopAttackAction(entity.attackComponent, entity.unitComponent, entity.baseComponent);
+        NavSystem.StartNavTouchAction(roadNodeArr, entity.navComponent, entity.unitComponent);
        
     }
 
@@ -509,6 +548,7 @@ export class FightManager extends Component {
         this.isLoading = false;
     }
 }
+
 
 
 

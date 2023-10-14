@@ -15,6 +15,7 @@ import { NavSystem } from './Systems/NavSystem';
 import { NPCInteractiveProcessSystem } from './Systems/NPCInteractiveProcessSystem';
 import { NPCInteractiveTestSystem } from './Systems/NPCInteractiveTestSystem';
 import { PatrolAISystem } from './Systems/PatrolAISystem';
+import { TrackAttackSystem } from './Systems/TrackAttackSystem';
 import { TransferSystem } from './Systems/TransferSystem';
 
 export class ECSWorld extends Component {
@@ -207,6 +208,9 @@ export class ECSWorld extends Component {
             else if(mapItem.type == "transfer") {
                 entity = await EntityFactory.CreateTransferEntity(mapItem);
                 this.transferEntities[entity.baseComponent.entityID] = entity;
+            }
+            else { // 有些一地图上的npc, 没有objectId;
+                continue;
             }
             this.worldEntities[entity.baseComponent.entityID] = entity;
         }
@@ -479,6 +483,22 @@ export class ECSWorld extends Component {
         }
     }
 
+    private EntityTrackAttackUpdate(dt: number) {
+        for (let key in this.playerEntities) {
+            var player: PlayerEntity = this.playerEntities[key];
+
+            if(player.unitComponent.state === UnitState.death || player.unitComponent.state === UnitState.none) {
+                continue;
+            }
+            
+            if(player.trackAttack.trackTarget === null) {
+                continue;
+            }
+
+            TrackAttackSystem.Update(dt, player);
+        }
+    }
+
     protected update(dt: number): void {
 
         // AI System的迭代
@@ -505,11 +525,15 @@ export class ECSWorld extends Component {
         this.NPCInteractiveProcessUpdate(dt);
         // end
 
+        // 追踪攻击对象
+        this.EntityTrackAttackUpdate(dt);
+        // end
         // 攻击计算迭代
         this.EntityAttackSystemUpdate(dt);
         // end
     }
 }
+
 
 
 

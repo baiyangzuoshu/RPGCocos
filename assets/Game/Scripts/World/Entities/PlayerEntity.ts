@@ -4,6 +4,7 @@ import { LifeAttrComponent } from "../Components/LifeAttrComponent";
 import { NavComponent } from "../Components/NavComponent";
 import { RoleComponent } from "../Components/RoleComponent";
 import { ShapeComponent } from "../Components/ShapeComponent";
+import { TrackAttackComponent } from "../Components/TrackAttackComponent";
 import { TransformComponent } from "../Components/TransformComponent";
 import { UnitComponent } from "../Components/UnitComponent";
 
@@ -17,6 +18,8 @@ export class PlayerEntity {
     navComponent: NavComponent = new NavComponent();
     lifeAttrComponent: LifeAttrComponent = new LifeAttrComponent();
     attackComponent: AttackComponent = new AttackComponent();
+    trackAttack: TrackAttackComponent = new TrackAttackComponent();
+    
     // userInfoComponent: UserInfoComponnet = new UserInfoComponnet();
     // uname, uid, usex, 装备; ...
 }

@@ -72,16 +72,21 @@ export class AttackSystem {
 
     public static StopAttackAction(attackComponent: AttackComponent, unit: UnitComponent, baseComponent: BaseComponent): void {
         // 处理我们的动画与特效
-        attackComponent.effectNode.removeFromParent();
-        var attackConfig = GameDataManager.Instance.GetAttackConfigData(attackComponent.attackId);
-        PoolManager.Instance.PutNodeByPath(BundleName.Charactors, attackConfig.attackEffectName, attackComponent.effectNode);
+        if(attackComponent.effectNode !== null) {
+            attackComponent.effectNode.removeFromParent();
+            attackComponent.effectNode = null;
+            var attackConfig = GameDataManager.Instance.GetAttackConfigData(attackComponent.attackId);
+            PoolManager.Instance.PutNodeByPath(BundleName.Charactors, attackConfig.attackEffectName, attackComponent.effectNode);
+        }
+        
+        
         // end
-
+        attackComponent.attackTarget = null;
         attackComponent.attackId = 0; 
         attackComponent.calcTime = attackComponent.totalTime = 0;
-         // 设置成我们的idle状态，播放动画
-         EntityUtils.SetEntityState(UnitState.idle, unit, baseComponent);
-         // end
+        // 设置成我们的idle状态，播放动画
+        EntityUtils.SetEntityState(UnitState.idle, unit, baseComponent);
+        // end
     }
 
     public static Update(dt: number, world: ECSWorld, 

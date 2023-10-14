@@ -43,6 +43,7 @@ export enum ServerReturnEvent {
     PlayerAttack = 8, // 玩家角色发起攻击
     CalcDamage = 9, // 玩家计算伤害;
     EntityDead = 10, // Entity死亡
+    TrackAttack = 11, // 追踪攻击,
 }
 
 export enum EntityName {

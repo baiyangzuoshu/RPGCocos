@@ -26,17 +26,20 @@ export class PatrolAISystem {
         }
 
         patrolAIComponent.lastTime = RandomUtils.Range(1.5 , 4);
-        var x = npcComponent.startX + RandomUtils.Range(-patrolAIComponent.patrolRange , patrolAIComponent.patrolRange);
-        var y = npcComponent.startY + RandomUtils.Range(-patrolAIComponent.patrolRange , patrolAIComponent.patrolRange);
+        var x = npcComponent.startX + RandomUtils.Range(-patrolAIComponent.patrolRange, patrolAIComponent.patrolRange);
+        var y = npcComponent.startY + RandomUtils.Range(-patrolAIComponent.patrolRange, patrolAIComponent.patrolRange);
         // console.log(x, y);
 
         // 給我们的导航组件来装好我们对应的目标点;
-        var roadNodeArr: RoadNode[] = PathFindingAgent.instance.seekPath2(transformComponent.pos.x, transformComponent.pos.y, x, y);
+        var roadNodeArr: RoadNode[] = PathFindingAgent.instance.seekPath2(transformComponent.pos.x, transformComponent.pos.y, x, y, 8);
         if(roadNodeArr.length < 2) {
+            console.log(roadNodeArr.length);
             return;
         }
-        NavSystem.StartNavTouchAction(roadNodeArr, navComponent);
+        NavSystem.StartNavTouchAction(roadNodeArr, navComponent, unitComponent);
         // end
+
+        
     }
 
 }
