@@ -9,7 +9,7 @@ import PathFindingAgent from '../../3rd/map/road/PathFindingAgent';
 
 export class NavSystem {
     
-    public static StartNavTouchAction(roadNodeArr: RoadNode[],
+    public static startNavTouchAction(roadNodeArr: RoadNode[],
                         navComponent: NavComponent, 
                         unitComponent: UnitComponent,
                         /*baseComponent: BaseComponent*/): void {
@@ -23,7 +23,7 @@ export class NavSystem {
         // unitComponent.state = UnitState.idle;
     }
 
-    public static StartNavJoystickAction(dir: Vec2,
+    public static startNavJoystickAction(dir: Vec2,
         navComponent: NavComponent, 
         unitComponent: UnitComponent, 
         baseComponent: BaseComponent): void {
@@ -42,18 +42,18 @@ export class NavSystem {
         var dire:number = Math.round((-moveAngle + Math.PI) / (Math.PI / 4));
         var direction = dire > 5 ? dire-6 : dire+2;
         // var flag = (direction === unitComponent.direction)? true : false
-        EntityUtils.SetEntityDirection(direction, unitComponent, baseComponent);
-        EntityUtils.SetEntityState(UnitState.walk, unitComponent, baseComponent);
+        EntityUtils.setEntityDirection(direction, unitComponent, baseComponent);
+        EntityUtils.setEntityState(UnitState.walk, unitComponent, baseComponent);
         // end
     }
 
-    public static StopAction(navComponent: NavComponent): void {
+    public static stopAction(navComponent: NavComponent): void {
         navComponent.isWalking = false;
         navComponent.roadNodeArr = null;
         navComponent.joyStickDir = null;
     }
 
-    private static WalkToNext(navComponent: NavComponent, 
+    private static walkToNext(navComponent: NavComponent, 
                        unitComponent: UnitComponent, 
                        transformComponent: TransformComponent, 
                        baseComponent: BaseComponent): boolean {
@@ -80,13 +80,13 @@ export class NavSystem {
         var dire:number = Math.round((-moveAngle + Math.PI) / (Math.PI / 4));
         var direction = dire > 5 ? dire-6 : dire+2;
         // var flag = (direction === unitComponent.direction)? true : false
-        EntityUtils.SetEntityDirection(direction, unitComponent, baseComponent);
-        EntityUtils.SetEntityState(UnitState.walk, unitComponent, baseComponent);
+        EntityUtils.setEntityDirection(direction, unitComponent, baseComponent);
+        EntityUtils.setEntityState(UnitState.walk, unitComponent, baseComponent);
         // end
         return true;
     }
 
-    private static NavJoystickUpdate(dt: number, navComponent: NavComponent, 
+    private static navJoystickUpdate(dt: number, navComponent: NavComponent, 
         unitComponent: UnitComponent, 
         transformComponent: TransformComponent,
         baseComponent: BaseComponent) {
@@ -166,7 +166,7 @@ export class NavSystem {
         // end
     }
 
-    private static NavTouchUpdate(dt: number, navComponent: NavComponent, 
+    private static navTouchUpdate(dt: number, navComponent: NavComponent, 
         unitComponent: UnitComponent, 
         transformComponent: TransformComponent,
         baseComponent: BaseComponent) {
@@ -176,11 +176,11 @@ export class NavSystem {
             navComponent.nextIndex ++;
             if(navComponent.nextIndex >= navComponent.roadNodeArr.length) {
                 navComponent.isWalking = false;
-                EntityUtils.SetEntityState(UnitState.idle, unitComponent, baseComponent);
+                EntityUtils.setEntityState(UnitState.idle, unitComponent, baseComponent);
                 return;
             }
 
-            if(!this.WalkToNext(navComponent, unitComponent, transformComponent, baseComponent)) {
+            if(!this.walkToNext(navComponent, unitComponent, transformComponent, baseComponent)) {
                 return;
             }
         }
@@ -216,10 +216,10 @@ export class NavSystem {
         }
 
         if(navComponent.joyStickDir !== null) { // 走的是摇杆的Update
-            NavSystem.NavJoystickUpdate(dt, navComponent, unitComponent, transformComponent, baseComponent);
+            NavSystem.navJoystickUpdate(dt, navComponent, unitComponent, transformComponent, baseComponent);
         } // end
         else {
-            NavSystem.NavTouchUpdate(dt, navComponent, unitComponent, transformComponent, baseComponent);
+            NavSystem.navTouchUpdate(dt, navComponent, unitComponent, transformComponent, baseComponent);
         }
        
     }

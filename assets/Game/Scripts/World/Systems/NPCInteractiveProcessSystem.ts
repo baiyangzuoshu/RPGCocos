@@ -10,7 +10,7 @@ import { EventManager } from "../../../../Framework/Scripts/Managers/EventManage
 
 export class NPCInteractiveProcessSystem {
 
-    private static OnGotoNextState(npcInteractiveComponent: NPCInteractiveComponent, patrolAIComponent: PatrolAIComponent, baseComponent: BaseComponent): void {
+    private static onGotoNextState(npcInteractiveComponent: NPCInteractiveComponent, patrolAIComponent: PatrolAIComponent, baseComponent: BaseComponent): void {
         npcInteractiveComponent.stepIndex ++;
 
         baseComponent.gameObject.getChildByName("TalkBoard").active = false;
@@ -37,22 +37,22 @@ export class NPCInteractiveProcessSystem {
         // end
     }
 
-    private static ProcessOpendState(npcEntity: NPCEntity): void {
+    private static processOpendState(npcEntity: NPCEntity): void {
         // open 初始时候的处理
         if(npcEntity.patrolAIComponent) {
             npcEntity.patrolAIComponent.isStopPatrol = true;
-            EntityUtils.SetEntityState(UnitState.idle, npcEntity.unitComponent, npcEntity.baseComponent);
+            EntityUtils.setEntityState(UnitState.idle, npcEntity.unitComponent, npcEntity.baseComponent);
         } 
 
         
-        NPCInteractiveProcessSystem.OnGotoNextState(npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent, npcEntity.baseComponent);
+        NPCInteractiveProcessSystem.onGotoNextState(npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent, npcEntity.baseComponent);
 
         return;
         // end
     }
 
     // 对话打字
-    private static ProcessTalkingState(dt: number, baseComponent: BaseComponent, 
+    private static processTalkingState(dt: number, baseComponent: BaseComponent, 
                                        npcInteractiveComponent: NPCInteractiveComponent,
                                        patrolAIComponent: PatrolAIComponent): void {
 
@@ -67,7 +67,7 @@ export class NPCInteractiveProcessSystem {
                 npcInteractiveComponent.sayIndex ++; // 跳到下一句
                 npcInteractiveComponent.timeIenterval = 0;
                 if(npcInteractiveComponent.sayIndex >= npcInteractiveComponent.sayStatement.length) {
-                    NPCInteractiveProcessSystem.OnGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
+                    NPCInteractiveProcessSystem.onGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
                 }
             }
             else if (npcInteractiveComponent.charLen > talkStr.length) {
@@ -81,7 +81,7 @@ export class NPCInteractiveProcessSystem {
                     npcInteractiveComponent.charLen = 0;
 
                     if(npcInteractiveComponent.sayIndex >= npcInteractiveComponent.sayStatement.length) {
-                        NPCInteractiveProcessSystem.OnGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
+                        NPCInteractiveProcessSystem.onGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
                     }
                 }
             }
@@ -95,7 +95,7 @@ export class NPCInteractiveProcessSystem {
     }
     // end
 
-    private static ProcessFuncState(dt: number, baseComponent: BaseComponent, 
+    private static processFuncState(dt: number, baseComponent: BaseComponent, 
                                     npcInteractiveComponent: NPCInteractiveComponent,
                                     patrolAIComponent: PatrolAIComponent): void {
         
@@ -106,30 +106,30 @@ export class NPCInteractiveProcessSystem {
             break;
         }
 
-        NPCInteractiveProcessSystem.OnGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
+        NPCInteractiveProcessSystem.onGotoNextState(npcInteractiveComponent, patrolAIComponent, baseComponent);
 
     }
 
     public static Update(dt: number, npcEntity: NPCEntity): void {
         // open 初始时候的处理
         if(npcEntity.npcInteractiveComponent.interactiveState === InteractiveState.opened) {
-           this.ProcessOpendState(npcEntity);
+           this.processOpendState(npcEntity);
            return;
         }
         // end
 
         if(npcEntity.npcInteractiveComponent.interactiveState === InteractiveState.Talking) {
-            this.ProcessTalkingState(dt, npcEntity.baseComponent, npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent);
+            this.processTalkingState(dt, npcEntity.baseComponent, npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent);
             return;
         }
 
         if(npcEntity.npcInteractiveComponent.interactiveState === InteractiveState.ProcessingFunc) {
             console.log("InteractiveState.ProcessingFunc", typeof(npcEntity.npcInteractiveComponent.curId));
-            this.ProcessFuncState(dt, npcEntity.baseComponent, npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent);
+            this.processFuncState(dt, npcEntity.baseComponent, npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent);
             return;
         }
         // 默认处理
-        NPCInteractiveProcessSystem.OnGotoNextState(npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent, npcEntity.baseComponent);
+        NPCInteractiveProcessSystem.onGotoNextState(npcEntity.npcInteractiveComponent, npcEntity.patrolAIComponent, npcEntity.baseComponent);
     }
 
 }

@@ -1,7 +1,6 @@
 import { Size, view } from "cc";
 
 export class DeviceParams  {
-
     private static _winSize: Size;
     /**游戏窗口大小 */
     public static get winSize(): Size {
@@ -13,9 +12,6 @@ export class DeviceParams  {
 
         return this._winSize;
     }
-
-
-
 }
 
 

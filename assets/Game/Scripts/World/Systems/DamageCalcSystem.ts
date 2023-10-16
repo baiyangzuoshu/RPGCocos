@@ -6,7 +6,7 @@ import { GameEvent, ServerReturnEvent } from "../../Constants";
 import { EventManager } from "../../../../Framework/Scripts/Managers/EventManager";
 
 export class DamageCalcSystem {
-    public static DamageOneTarget(attackValue, 
+    public static damageOneTarget(attackValue, 
                                   targetLifeAttr: LifeAttrComponent, 
                                   baseComponent: BaseComponent): void {
         

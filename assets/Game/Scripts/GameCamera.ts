@@ -1,5 +1,6 @@
 import { Component, Node, UITransform, Vec3, v3 } from 'cc';
 import MapParams from './3rd/map/base/MapParams';
+import { MapItemType } from './Constants';
 import { PlayerEntity } from './World/Entities/PlayerEntity';
 
 export class GameCamera extends Component {
@@ -10,7 +11,7 @@ export class GameCamera extends Component {
     private ymin: number = 0;
     private ymax: number = 0;
 
-    public ResetCamera(spawnId, mapRoot: Node, mapParams: MapParams, mapData: any): void {
+    public resetCamera(spawnId, mapRoot: Node, mapParams: MapParams, mapData: any): void {
         var mapItems:object[] = mapData.mapItems;
         var first = null;
 
@@ -30,11 +31,9 @@ export class GameCamera extends Component {
 
         for(var i:number = 0 ; i < mapItems.length ; i++) {
             var mapItem:any = mapItems[i];
-            if(mapItem.type == "spawnPoint" && mapItem.spawnId === spawnId)  {
-                // 摆好我们的摄像机
+            if(mapItem.type == MapItemType.SpawnPoint && mapItem.spawnId === spawnId)  {
                 wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(mapItem.x, mapItem.y, 1000 ));
                 this.node.setWorldPosition(wPos);
-                // end
                 return;
             }
         }
@@ -42,12 +41,10 @@ export class GameCamera extends Component {
         for(var i:number = 0 ; i < mapItems.length ; i++) {
             var mapItem:any = mapItems[i];
             
-            if(mapItem.type == "spawnPoint")  {
+            if(mapItem.type == MapItemType.SpawnPoint)  {
                 if(mapItem.defaultSpawn === true) {
-                    // 摆好我们的摄像机
                     wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(mapItem.x, mapItem.y, 1000 ));
                     this.node.setWorldPosition(wPos);
-                    // end
                     return;
                 }
                 if(first === null) {

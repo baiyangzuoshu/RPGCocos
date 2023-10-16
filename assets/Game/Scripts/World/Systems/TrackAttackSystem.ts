@@ -9,17 +9,17 @@ import { NavSystem } from "./NavSystem";
 
 export class TrackAttackSystem {
 
-    public static StartAction(entity: PlayerEntity): void {
-        NavSystem.StopAction(entity.navComponent); // 停止行走
+    public static startAction(entity: PlayerEntity): void {
+        NavSystem.stopAction(entity.navComponent); // 停止行走
         // 停止攻击
-        AttackSystem.StopAttackAction(entity.attackComponent, entity.unitComponent, entity.baseComponent);
-        EntityUtils.SetEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent);
+        AttackSystem.stopAttackAction(entity.attackComponent, entity.unitComponent, entity.baseComponent);
+        EntityUtils.setEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent);
         
         entity.trackAttack.trackTime = 0;
         entity.attackComponent.attackTarget = entity.trackAttack.trackTarget;
     }
 
-    public static StopAction(entity: PlayerEntity): void {
+    public static stopAction(entity: PlayerEntity): void {
         entity.trackAttack.trackTarget = null;
     }
 
@@ -27,7 +27,7 @@ export class TrackAttackSystem {
 
         var targetEntity = entity.trackAttack.trackTarget;
         if(targetEntity.unitComponent.state === UnitState.death || targetEntity.unitComponent.state === UnitState.none) {
-            TrackAttackSystem.StopAction(entity);
+            TrackAttackSystem.stopAction(entity);
             return;
         }
 
@@ -36,14 +36,14 @@ export class TrackAttackSystem {
         if(entity.unitComponent.state === UnitState.idle || 
             entity.unitComponent.state === UnitState.walk) {
             // 判断一下目标是不是你的攻击范围内
-            var attackR = AttackSystem.GetPlayerEntityAttackR(/*entity, */entity.trackAttack.attackId);
-            if(AttackSystem.IsInAttackR(attackR, entity.transformComponent, targetEntity.transformComponent)) {
+            var attackR = AttackSystem.getPlayerEntityAttackR(/*entity, */entity.trackAttack.attackId);
+            if(AttackSystem.isInAttackR(attackR, entity.transformComponent, targetEntity.transformComponent)) {
                 
-                NavSystem.StopAction(entity.navComponent);
+                NavSystem.stopAction(entity.navComponent);
                 entity.attackComponent.attackId = entity.trackAttack.attackId;
                 entity.attackComponent.attackTarget = targetEntity;  
                 
-                AttackSystem.StartAttackAction(entity.attackComponent.attackId, targetEntity, 
+                AttackSystem.startAttackAction(entity.attackComponent.attackId, targetEntity, 
                     entity.unitComponent, 
                     entity.baseComponent, 
                     entity.transformComponent, 
@@ -62,7 +62,7 @@ export class TrackAttackSystem {
                         entity.trackAttack.trackTarget = null;
                         return;
                     }
-                    NavSystem.StartNavTouchAction(roadNodeArr, entity.navComponent, entity.unitComponent);
+                    NavSystem.startNavTouchAction(roadNodeArr, entity.navComponent, entity.unitComponent);
                 }
             }
         }

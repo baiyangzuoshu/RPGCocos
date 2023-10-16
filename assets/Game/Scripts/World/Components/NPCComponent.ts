@@ -1,8 +1,4 @@
-import MovieClip from "../../Utils/MovieClip";
-import { UnitState } from "./UnitComponent";
-
 export class NPCComponent {
-    
     public npcId: number = 0;
     public defaultDir: number = 0;
     public isPatrol: boolean = false;

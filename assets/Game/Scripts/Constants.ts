@@ -51,7 +51,12 @@ export enum ServerReturnEvent {
 }
 
 
-
+export enum MapItemType{
+    SpawnPoint="spawnPoint",
+    NPC="npc",
+    Monster="monster",
+    Transfer="transfer",
+}
 
 
 

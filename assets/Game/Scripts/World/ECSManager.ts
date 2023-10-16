@@ -16,22 +16,18 @@ import { CollectHitSystem } from './Systems/CollectHitSystem';
 import { AttackSystem } from './Systems/AttackSystem';
 import { UnitState } from './Components/UnitComponent';
 import { TrackAttackSystem } from './Systems/TrackAttackSystem';
+import { MapItemType } from '../Constants';
 
 
-export class ECSWorld extends Component {
-
+export class ECSManager extends Component {
     private spawnPoints = {};
-    
-    
     private playerEntities = {};
     private npcEntities = {};
-    
     private monsterEntities = {};
     private transferEntities = {};
-
     private worldEntities = {}; // entityId ---> entity的一个映射
 
-    public GetEntityById(entityID: number): any {
+    public getEntityById(entityID: number): any {
         if(this.worldEntities[entityID]) {
             return this.worldEntities[entityID];
         }
@@ -40,7 +36,7 @@ export class ECSWorld extends Component {
         return null;
     }
 
-    public GetMonestEntitiesInAttackR(centerPos: Vec3, attackR: number): Array<any> {
+    public getMonestEntitiesInAttackR(centerPos: Vec3, attackR: number): Array<any> {
      
         var minDis = attackR * attackR;
         var targets = [];
@@ -64,8 +60,8 @@ export class ECSWorld extends Component {
         return targets;
     }
 
-    public GetNearastMonestAttackEntity(entity:PlayerEntity, attackId): any {
-        var attackR = AttackSystem.GetPlayerEntityAttackR(/*entity, */attackId);
+    public getNearastMonestAttackEntity(entity:PlayerEntity, attackId): any {
+        var attackR = AttackSystem.getPlayerEntityAttackR(/*entity, */attackId);
         console.log(attackR);
 
         var minDis = attackR * attackR;
@@ -90,21 +86,21 @@ export class ECSWorld extends Component {
         return target;
     }
 
-    public EntityCollectHit(pos: Vec3): number {
+    public entityCollectHit(pos: Vec3): number {
         for(let key in this.worldEntities) {
             var entity = this.worldEntities[key];
             if(!entity) {
                 continue;
             } 
 
-            if(CollectHitSystem.CollectHitTest(pos, entity.transformComponent, entity.shapeComponent)) {
+            if(CollectHitSystem.collectHitTest(pos, entity.transformComponent, entity.shapeComponent)) {
                 return entity.baseComponent.entityID;                
             }
         }
         return 0; // 表示什么都没有点击到
     }
 
-    public GetPlayerEntityByID(entityID: number): PlayerEntity {
+    public getPlayerEntityByID(entityID: number): PlayerEntity {
         if(this.playerEntities[entityID]) {
             return this.playerEntities[entityID];
         }
@@ -113,25 +109,25 @@ export class ECSWorld extends Component {
         return null;
     }
 
-    public RemoveAllEntitiesInWorld(): void {
+    public removeAllEntitiesInWorld(): void {
         for (let key in this.playerEntities) {
-            EntityFactory.DestoryEntityGameObject(this.playerEntities[key]);
+            EntityFactory.destoryEntityGameObject(this.playerEntities[key]);
         }
         
         this.playerEntities = {};
         
         for (let key in this.npcEntities) {
-            EntityFactory.DestoryEntityGameObject(this.npcEntities[key]);
+            EntityFactory.destoryEntityGameObject(this.npcEntities[key]);
         }
         this.npcEntities = {};
         
         for (let key in this.monsterEntities) {
-            EntityFactory.DestoryEntityGameObject(this.monsterEntities[key]);
+            EntityFactory.destoryEntityGameObject(this.monsterEntities[key]);
         }
         this.monsterEntities = {};
 
         for (let key in this.transferEntities) {
-            EntityFactory.DestoryEntityGameObject(this.transferEntities[key]);
+            EntityFactory.destoryEntityGameObject(this.transferEntities[key]);
         }
         this.transferEntities = {};
 
@@ -140,7 +136,7 @@ export class ECSWorld extends Component {
         this.worldEntities = {};
     }
 
-    public DestroyMonestEntityInWorld(entityID: number): void {
+    public destroyMonestEntityInWorld(entityID: number): void {
         if(!this.monsterEntities[entityID]) {
             return;
         }
@@ -154,10 +150,10 @@ export class ECSWorld extends Component {
         // end
 
         // 释放entity的数据
-        EntityFactory.DestoryEntityGameObject(entity);
+        EntityFactory.destoryEntityGameObject(entity);
     }
 
-    public DestroyPlayerEntityInWorld(entityID: number): void {
+    public destroyPlayerEntityInWorld(entityID: number): void {
         if(!this.playerEntities[entityID]) {
             return;
         }
@@ -171,10 +167,10 @@ export class ECSWorld extends Component {
         // end
 
         // 释放entity的数据
-        EntityFactory.DestoryEntityGameObject(entity);
+        EntityFactory.destoryEntityGameObject(entity);
     }
 
-    private async InitMapElement(mapParams: MapParams, mapData: MapData) {
+    private async initMapElement(mapParams: MapParams, mapData: MapData) {
         var mapItems:object[] = mapData.mapItems;
 
         if(!mapItems) {
@@ -184,29 +180,29 @@ export class ECSWorld extends Component {
         for(var i:number = 0 ; i < mapItems.length ; i++)
         {
             var mapItem:any = mapItems[i];
-            if(mapItem.type == "spawnPoint")  {
+            if(mapItem.type == MapItemType.SpawnPoint)  {
                 this.spawnPoints[mapItem.spawnId] = mapItem;
                 continue;
             }
 
             var entity = null;
 
-            if(mapItem.type == "npc" && Number(mapItem.objId) != 0) {
-                entity = await EntityFactory.CreateNPCEntity(mapItem);
+            if(mapItem.type == MapItemType.NPC && Number(mapItem.objId) != 0) {
+                entity = await EntityFactory.createNPCEntity(mapItem);
                 if(entity === null) {
                     continue;
                 }
                 this.npcEntities[entity.baseComponent.entityID] = entity;
             }
-            else if(mapItem.type == "monster" && Number(mapItem.objId) != 0) {
-                entity = await EntityFactory.CreateMonestEntity(mapItem);
+            else if(mapItem.type == MapItemType.Monster && Number(mapItem.objId) != 0) {
+                entity = await EntityFactory.createMonestEntity(mapItem);
                 if(entity === null) {
                     continue;
                 }
                 this.monsterEntities[entity.baseComponent.entityID] = entity;
             }
-            else if(mapItem.type == "transfer") {
-                entity = await EntityFactory.CreateTransferEntity(mapItem);
+            else if(mapItem.type == MapItemType.Transfer) {
+                entity = await EntityFactory.createTransferEntity(mapItem);
                 this.transferEntities[entity.baseComponent.entityID] = entity;
             }
             else { // 有些一地图上的npc, 没有objectId;
@@ -216,7 +212,7 @@ export class ECSWorld extends Component {
         }
     }
 
-    public GetSpwanPosition(spawnId): any {
+    public getSpwanPosition(spawnId): any {
         var config = null;
         var first = null;
 
@@ -246,40 +242,40 @@ export class ECSWorld extends Component {
         return { x: config.x, y: config.y };
     }
 
-    public async Init(mapParams: MapParams, mapData: MapData) {
+    public async init(mapParams: MapParams, mapData: MapData) {
         // 
-        EntityFactory.Init(this.node);
+        EntityFactory.init(this.node);
         // end
 
         // 读取我们的地图数据的内容,把一些我们的物体的Enity给他创建出来，并管理好;
-        await this.InitMapElement(mapParams, mapData);
+        await this.initMapElement(mapParams, mapData);
         // end
     }
 
-    public DestroyWorld(): void {
+    public destroyWorld(): void {
         // 删除我们原来的节点
-        this.RemoveAllEntitiesInWorld();
+        this.removeAllEntitiesInWorld();
         // end
 
         // 构造工厂清理以下
-        EntityFactory.Exit();
+        EntityFactory.exit();
         // end
 
         this.node.destroy();
     }
 
     // {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: 1  };
-    public async OnPlayerEnterWorld(config) {
-        var pos = this.GetSpwanPosition(config.enterSpawnId);
+    public async onPlayerEnterWorld(config) {
+        var pos = this.getSpwanPosition(config.enterSpawnId);
 
-        var entity = await EntityFactory.CreatePlayerEntity(config, pos.x, pos.y);
+        var entity = await EntityFactory.createPlayerEntity(config, pos.x, pos.y);
         this.playerEntities[entity.baseComponent.entityID] = entity;
 
 
         return entity;
     } 
 
-    private SimTrasferUpdate(dt: number): void {
+    private simTrasferUpdate(dt: number): void {
         for (let key in this.transferEntities) {
             var trasferEntity: TransferEntity = this.transferEntities[key];
             // 遍历传送门，AOI范围内的玩家，不用遍历这个服务器上的所有玩家
@@ -301,7 +297,7 @@ export class ECSWorld extends Component {
         }
     }
 
-    private NavSystemUpdate(dt: number): void {
+    private navSystemUpdate(dt: number): void {
         for (let key in this.playerEntities) {
             if(!this.playerEntities[key]) {
                 continue;
@@ -348,7 +344,7 @@ export class ECSWorld extends Component {
         }
     }
 
-    private PatrolAISystemUpdate(dt: number): void {
+    private patrolAISystemUpdate(dt: number): void {
         for (let key in this.npcEntities) {
             if(!this.npcEntities[key]) {
                 continue;
@@ -365,7 +361,7 @@ export class ECSWorld extends Component {
         }
     }
 
-    private EntityAttackSystemUpdate(dt: number): void {
+    private entityAttackSystemUpdate(dt: number): void {
         for (let key in this.playerEntities) {
             if(!this.playerEntities[key]) {
                 continue;
@@ -400,7 +396,7 @@ export class ECSWorld extends Component {
         }
     }
 
-    private EntityAlphaSystemUpdate(): void {
+    private entityAlphaSystemUpdate(): void {
         for (let key in this.playerEntities) {
             if(!this.playerEntities[key]) {
                 continue;
@@ -483,7 +479,7 @@ export class ECSWorld extends Component {
         }
     }
 
-    private EntityTrackAttackUpdate(dt: number) {
+    private entityTrackAttackUpdate(dt: number) {
         for (let key in this.playerEntities) {
             var player: PlayerEntity = this.playerEntities[key];
 
@@ -502,19 +498,19 @@ export class ECSWorld extends Component {
     protected update(dt: number): void {
 
         // AI System的迭代
-        this.PatrolAISystemUpdate(dt);
+        this.patrolAISystemUpdate(dt);
         // end
 
         // 导航的迭代
-        this.NavSystemUpdate(dt);
+        this.navSystemUpdate(dt);
         // end
 
         // 透明度的迭代
-        this.EntityAlphaSystemUpdate();
+        this.entityAlphaSystemUpdate();
         // end
 
         // 模拟服务器上的传送门的迭代计算
-        this.SimTrasferUpdate(dt);
+        this.simTrasferUpdate(dt);
         // end
 
         // 模拟服务器上 NPC 对话检测的迭代计算 
@@ -526,11 +522,11 @@ export class ECSWorld extends Component {
         // end
 
         // 追踪攻击对象
-        this.EntityTrackAttackUpdate(dt);
+        this.entityTrackAttackUpdate(dt);
         // end
 
         // 攻击计算迭代
-        this.EntityAttackSystemUpdate(dt);
+        this.entityAttackSystemUpdate(dt);
         // end
     }
 }

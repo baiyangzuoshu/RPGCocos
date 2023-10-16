@@ -37,8 +37,8 @@ export class NPCInteractiveTestSystem {
                 }
 
                 if(npcNavComponent) {
-                    NavSystem.StopAction(npcNavComponent);
-                    EntityUtils.SetEntityState(UnitState.walk, npcUnitComponent, npcBaseComponent);
+                    NavSystem.stopAction(npcNavComponent);
+                    EntityUtils.setEntityState(UnitState.walk, npcUnitComponent, npcBaseComponent);
                 }
                 
                 npcInteractive.isCanInteractive = false;

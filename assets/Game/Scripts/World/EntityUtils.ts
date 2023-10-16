@@ -6,8 +6,7 @@ import { TransformComponent } from './Components/TransformComponent';
 
 
 export class EntityUtils  {
-
-    private static SetPlayerEntityState(state: UnitState, 
+    private static setPlayerEntityState(state: UnitState, 
                                         unitComponent: UnitComponent, 
                                         baseComponent: BaseComponent) {
         
@@ -32,16 +31,14 @@ export class EntityUtils  {
 
         }
 
-        // 方向是正确的
-        this.SetEntityDirection(unitComponent.direction, unitComponent, baseComponent);
-        // end
+        this.setEntityDirection(unitComponent.direction, unitComponent, baseComponent);
 
         unitComponent.movieClip.node.active = true;
         unitComponent.movieClip.playIndex = 0;
         unitComponent.movieClip.playAction();
     }
 
-    private static SetNPCEntityState(state: UnitState, 
+    private static setNPCEntityState(state: UnitState, 
                                      unitComponent: UnitComponent, 
                                      baseComponent: BaseComponent) {
 
@@ -61,16 +58,14 @@ export class EntityUtils  {
             break;
         }
 
-        // 方向是正确的
-        this.SetEntityDirection(unitComponent.direction, unitComponent, baseComponent);
-        // end
+        this.setEntityDirection(unitComponent.direction, unitComponent, baseComponent);
 
         unitComponent.movieClip.node.active = true;
         unitComponent.movieClip.playIndex = 0;
         unitComponent.movieClip.playAction();
     }
 
-    public static SetEntityState(state: UnitState, 
+    public static setEntityState(state: UnitState, 
                                     unitComponent: UnitComponent, 
                                     baseComponent: BaseComponent) {
 
@@ -80,33 +75,32 @@ export class EntityUtils  {
 
         switch(baseComponent.type) {
             case EntityType.Player:
-                EntityUtils.SetPlayerEntityState(state, unitComponent, baseComponent);
+                EntityUtils.setPlayerEntityState(state, unitComponent, baseComponent);
             break;
             case EntityType.NPC:
             case EntityType.Monster:
-                EntityUtils.SetNPCEntityState(state, unitComponent, baseComponent);
+                EntityUtils.setNPCEntityState(state, unitComponent, baseComponent);
             break;
 
         }
         
     }
 
-    // ctrl + [
-    public static SetEntityDirection(value: number, 
+    public static setEntityDirection(value: number, 
                                      unitComponent: UnitComponent, 
                                      baseComponent: BaseComponent) {
         switch(baseComponent.type) {
             case EntityType.Player:
-                EntityUtils.SetPlayerEntityDirection(value, unitComponent/*, baseComponent*/);
+                EntityUtils.setPlayerEntityDirection(value, unitComponent/*, baseComponent*/);
             break;
             case EntityType.NPC:
             case EntityType.Monster:
-                EntityUtils.SetNPCEntityDirection(value, unitComponent/*, baseComponent*/);
+                EntityUtils.setNPCEntityDirection(value, unitComponent/*, baseComponent*/);
             break;
         }
     }
 
-    private static SetPlayerEntityDirection(value: number, 
+    private static setPlayerEntityDirection(value: number, 
                                            unitComponent: UnitComponent, 
                                            /*baseComponent: BaseComponent*/) {
         unitComponent.direction = value;
@@ -147,7 +141,7 @@ export class EntityUtils  {
         }
     }
 
-    private static SetNPCEntityDirection(value: number, 
+    private static setNPCEntityDirection(value: number, 
                                         unitComponent: UnitComponent, 
                                         /*baseComponent: BaseComponent*/) {
         unitComponent.direction = value;
@@ -166,7 +160,7 @@ export class EntityUtils  {
         }
     }
 
-    public static LookAtTarget(unit: UnitComponent,
+    public static lookAtTarget(unit: UnitComponent,
                                baseComponent: BaseComponent,
                                selfTransform: TransformComponent, 
                                targetTransform: TransformComponent): void {
@@ -179,7 +173,7 @@ export class EntityUtils  {
         var dire:number = Math.round((-moveAngle + Math.PI) / (Math.PI / 4));
         var direction = dire > 5 ? dire-6 : dire+2;
         // var flag = (direction === unitComponent.direction)? true : false
-        EntityUtils.SetEntityDirection(direction, unit, baseComponent);
+        EntityUtils.setEntityDirection(direction, unit, baseComponent);
     }
 }
 

@@ -8,7 +8,6 @@ import { TrackAttackComponent } from "../Components/TrackAttackComponent";
 import { TransformComponent } from "../Components/TransformComponent";
 import { UnitComponent } from "../Components/UnitComponent";
 
-
 export class PlayerEntity {
     baseComponent: BaseComponent = new BaseComponent();
     shapeComponent: ShapeComponent = new ShapeComponent();

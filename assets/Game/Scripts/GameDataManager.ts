@@ -13,7 +13,6 @@ export class GameDataManager {
     public skillConfig = null;
 
     public async Init() {
-        // 到Excel表格里面加载配置文件
         await ResManager.Instance.IE_LoadBundleAndAllAssets(BundleName.Datas, TextAsset);
         ExcelManager.Instance.AddTable("charactor", (ResManager.Instance.TryGetAsset(BundleName.Datas, "charactor") as TextAsset).text);
         this.charactorConfig = ExcelManager.Instance.GetTable("charactor");
@@ -25,7 +24,6 @@ export class GameDataManager {
         this.npc_dialogue = ExcelManager.Instance.GetTable("npc_dialogue");
         ExcelManager.Instance.AddTable("skill", (ResManager.Instance.TryGetAsset(BundleName.Datas, "skill") as TextAsset).text);
         this.skillConfig = ExcelManager.Instance.GetTable("skill");
-        // end
 
         // console.log(this.charactorConfig, this.monesterConfig, this.npcConfig, this.npc_dialogue, this.skillConfig);
     }

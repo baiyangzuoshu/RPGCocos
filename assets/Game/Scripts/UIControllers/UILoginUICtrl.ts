@@ -22,20 +22,21 @@ export class UILoginUICtrl extends UIComponent {
     }
 
     private async OnGameLogin() {
-        // 发送给服务器, 服务器给你回一个Success
         await UIManager.Instance.IE_ShowUIView(UIView.UILoading);
         UIManager.Instance.DestroyUIView(UIView.UILogin);
-        // end
 
-        // 给一个状态，如果正在登录中，就屏蔽掉，不让它点击;
         var uname = this.unameEditor.string;
         var upwd = this.upwdEditor.string;
         EventManager.Instance.Emit(UIGameEvent.UILoginIn, {uname: uname, upwd: upwd});
-        // end
     }
 
-    private OnGameRegister(): void {
+    private async OnGameRegister() {
+        await UIManager.Instance.IE_ShowUIView(UIView.UILoading);
+        UIManager.Instance.DestroyUIView(UIView.UILogin);
 
+        var uname = this.unameEditor.string;
+        var upwd = this.upwdEditor.string;
+        EventManager.Instance.Emit(UIGameEvent.UILoginIn, {uname: uname, upwd: upwd});
     }
     
 }

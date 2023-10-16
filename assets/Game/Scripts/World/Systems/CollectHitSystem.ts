@@ -4,7 +4,7 @@ import { ShapeComponent } from "../Components/ShapeComponent";
 import { TransformComponent } from "../Components/TransformComponent";
 
 export class CollectHitSystem {
-    public static CollectHitTest(hitPos: Vec3, 
+    public static collectHitTest(hitPos: Vec3, 
                                  transformComponent: TransformComponent,
                                  shapeComponent: ShapeComponent): boolean {
                 

@@ -5,7 +5,7 @@ import MapData from './3rd/map/base/MapData';
 import MapParams from './3rd/map/base/MapParams';
 import { DeviceParams } from './DeviceParams';
 import { MapViewLoader } from './MapViewLoader';
-import { ECSWorld } from './World/ECSWorld';
+import { ECSManager } from './World/ECSManager';
 import PathLog from './3rd/map/road/PathLog';
 import PathFindingAgent from './3rd/map/road/PathFindingAgent';
 import RoadNode from './3rd/map/road/RoadNode';
@@ -34,7 +34,7 @@ export class FightManager extends Component {
     private mapParams: MapParams = null!;
     private selfPlayerEntity = null!;
 
-    private ecsWorld: ECSWorld = null!;
+    private ecsWorld: ECSManager = null!;
     
     private fightEventProcess = {};
 
@@ -68,10 +68,8 @@ export class FightManager extends Component {
         EventManager.Instance.RemoveEventListener(UIGameEvent.UIChangeMap, this.OnUIChangeMap, this);
         EventManager.Instance.RemoveEventListener(UIGameEvent.UITouchNav, this.OnUITouchNav, this);
     }
-
     
     protected onDestroy(): void {
-        // console.log("onDestroy exit &&&&&&&&&");
         this.RemoveUIEventListeners();
     }
 
@@ -88,28 +86,17 @@ export class FightManager extends Component {
             return;
         }
 
-        // 发数据给服务器: playerId, 发起攻击请求， 攻击的attackId;
-        // end 
-
-        // 测试模拟服务器就会给你返回一个数据 允许你发起攻击;
-        // ret = { eventType: playerId: xxxx,  attackId: xxxx}
         var serverRetData = {
             eventType: ServerReturnEvent.PlayerAttack,
             playerId: this.selfPlayerEntity.baseComponent.entityID, 
             attackId: attackId,
         };
         EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverRetData);
-        // end
     }
 
     private OnUIJoystickEvent(eventName: string, udata: any): void {
         var dir: Vec2 = udata as Vec2;
 
-        // 发往服务器，让服务器来验证，验证通过以后，返回给客户端
-        // end
-
-        // 模拟发送一个网络事件给这个客户端，让我们的游戏来处理摇杆
-        // {eventType: 类型,  playerId: xxxx, dir: }
         if(this.selfPlayerEntity === null) { // 测试代码
             return;
         }
@@ -120,15 +107,9 @@ export class FightManager extends Component {
             dir: dir,
         };
         EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverRetData);
-        // end
     }
 
     private OnUISwitchRole(): void {
-        // 要发往服务器,服务器同意你才可以切换你的RoleId;
-        // end
-        
-        // 模拟服务器的消息回来
-        // {eventType: 类型,  roleId: 1, playerId: xxxx}
         if(this.selfPlayerEntity === null) {
             return;
         }
@@ -143,26 +124,18 @@ export class FightManager extends Component {
             playerId: this.selfPlayerEntity.baseComponent.entityID, 
         };
         EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverData);
-        // end
-
     }
 
     private OnUIChangeMap(eventName: string, udata): void {
         var mapId: string = udata as string;
 
-        // 是要发往服务器的
         if(this.isLoading) {
             return;
         }
-        // end
-
-        // 发送事件給服务器，服务器就給你切换地图，并且通知对你感兴趣的玩家，你要走了;
-        // {}
         var serverData = {eventType: ServerReturnEvent.ChangeMap, 
             playerId: this.selfPlayerEntity.baseComponent.entityID, 
             mapId: mapId};
         EventManager.Instance.Emit(GameEvent.NetServerRetEvent, serverData);
-        // end
     }
 
     private OnUITouchNav(eventName: string, udata: any): void {
@@ -173,25 +146,16 @@ export class FightManager extends Component {
         var touchPos = udata as Vec2;
         var pos: Vec3 = this.getCameraPos().add(new Vec3(touchPos.x,touchPos.y));
         pos = this.ecsWorld.node.getComponent(UITransform).convertToNodeSpaceAR(pos);
-        // console.log(pos);
-        // 发往服务器
-        // 服务器开发的时候，发往服务器的，我们不要带玩家的id;
-        // 服务端根据哪个socket ----> 是哪个玩家对应的socket, ===>id;
-        // end
-
         // 测试代码: 来做物体的拾取，计算出来当前我们点击到的是那些物体;
-        var hitEntityId = this.ecsWorld.EntityCollectHit(pos);
-        // end
+        var hitEntityId = this.ecsWorld.entityCollectHit(pos);
 
         // 测试(网络数据模块来调用，由于没有网络，所以我们这里来接入)
         if(hitEntityId === 0) {
-            TrackAttackSystem.StopAction(this.selfPlayerEntity);
+            TrackAttackSystem.stopAction(this.selfPlayerEntity);
             EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
         }
         else {
-            // 测试，发送数据给客户端，你点击到了哪个entityId;
-            // end
-            var hitEntity = this.ecsWorld.GetEntityById(hitEntityId);
+            var hitEntity = this.ecsWorld.getEntityById(hitEntityId);
             if(hitEntity !== null) {
                 console.log(hitEntity.baseComponent.name);
             }
@@ -203,25 +167,16 @@ export class FightManager extends Component {
             }
             else { // 停止自动追击的迭代
                 if(this.selfPlayerEntity) {
-                    // 
-                    TrackAttackSystem.StartAction(this.selfPlayerEntity);
-                    // end
+                    TrackAttackSystem.startAction(this.selfPlayerEntity);
                 }
             }
-            // end
 
-            // 临时代码
             if(hitEntity.baseComponent.type === EntityType.Transfer) {
                 EventManager.Instance.Emit(GameEvent.NetServerRetEvent, {eventType: ServerReturnEvent.TouchNav, pos: pos, playerId: this.selfPlayerEntity.baseComponent.entityID});
             }
-            // end
         }        
-        // end
     }
 
-    // {eventType: 1, pos: , playerId, ... }
-    // {eventType: 传送带事件, playerId: xxxx, mapId: 1, spawnId: xxxx,}
-    // 
     public OnServerEventReturn(eventName: string, event: any): void {
         var func = this.fightEventProcess[event.eventType];
         if(func) {
@@ -231,12 +186,12 @@ export class FightManager extends Component {
 
     private OnProcessEntityTrackAttackEvent(event): void {
         var entityId = event.playerId;
-        var entity: PlayerEntity = this.ecsWorld.GetPlayerEntityByID(entityId);
+        var entity: PlayerEntity = this.ecsWorld.getPlayerEntityByID(entityId);
         if(entity === null) {
             return;
         }
 
-        entity.trackAttack.trackTarget = this.ecsWorld.GetEntityById(event.targetId);
+        entity.trackAttack.trackTarget = this.ecsWorld.getEntityById(event.targetId);
         if(entity.trackAttack.trackTarget === null) {
             return;
         } 
@@ -245,55 +200,47 @@ export class FightManager extends Component {
             return;
         }
 
-        TrackAttackSystem.StartAction(entity);
+        TrackAttackSystem.startAction(entity);
     }
 
     private OnProcessEntityDeadEvent(event): void {
         var entityId = event.entityId;
-        var enrity = this.ecsWorld.GetEntityById(entityId);
+        var enrity = this.ecsWorld.getEntityById(entityId);
         if(enrity === null) {
             return;
         }
 
-        // entity就要销毁
         enrity.unitComponent.state = UnitState.death;
         if(enrity.baseComponent.type === EntityType.Player) {
-            this.ecsWorld.DestroyPlayerEntityInWorld(entityId);
+            this.ecsWorld.destroyPlayerEntityInWorld(entityId);
         }
         else if(enrity.baseComponent.type === EntityType.Monster) {
-            this.ecsWorld.DestroyMonestEntityInWorld(entityId);
+            this.ecsWorld.destroyMonestEntityInWorld(entityId);
         }
-        // end
     }
 
     private OnProcessPlayerAttackEvent(event): void {
-        // console.log(event);
-        var entity = this.ecsWorld.GetPlayerEntityByID(event.playerId);
+        var entity = this.ecsWorld.getPlayerEntityByID(event.playerId);
         if(!entity) { // 找不到玩家;
             return;
         }
         
-        // 停止导航
-        NavSystem.StopAction(entity.navComponent);
-        // end
-
-        // 开始攻击, 如果是对点的，你就是attackTarget, 如果是范围杀伤;
+        NavSystem.stopAction(entity.navComponent);
 
         var attackTarget = null;
-        if(!AttackSystem.IsAreaAttack(event.attackId)) {
-            attackTarget = this.ecsWorld.GetNearastMonestAttackEntity(entity, event.attackId);
+        if(!AttackSystem.isAreaAttack(event.attackId)) {
+            attackTarget = this.ecsWorld.getNearastMonestAttackEntity(entity, event.attackId);
         }
         
-        AttackSystem.StartAttackAction(event.attackId, attackTarget, 
+        AttackSystem.startAttackAction(event.attackId, attackTarget, 
                                        entity.unitComponent, 
                                        entity.baseComponent, 
                                        entity.transformComponent, 
                                        entity.attackComponent);
-        // end
     }
 
     private OnProcessJoystickEvent(event): void {
-        var entity = this.ecsWorld.GetPlayerEntityByID(event.playerId);
+        var entity = this.ecsWorld.getPlayerEntityByID(event.playerId);
         if(!entity) { // 哪个玩家有摇杆操作;
             return;
         }
@@ -301,20 +248,19 @@ export class FightManager extends Component {
         entity.roleComponent.controlMode = ControlMode.joystick;
 
         if(event.dir.x === 0 && event.dir.y === 0) {
-            NavSystem.StopAction(entity.navComponent);   
-            EntityUtils.SetEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent); 
+            NavSystem.stopAction(entity.navComponent);   
+            EntityUtils.setEntityState(UnitState.idle, entity.unitComponent, entity.baseComponent); 
             return;
         }
         
-        NavSystem.StartNavJoystickAction(event.dir, entity.navComponent, entity.unitComponent, entity.baseComponent);
+        NavSystem.startNavJoystickAction(event.dir, entity.navComponent, entity.unitComponent, entity.baseComponent);
     }
 
-    // {eventType: 类型,  roleId: 1, playerId: xxxx}
     private OnProcessSwitchRoleEvent(event): void {
         var roleId = event.roleId;
         var playerId = event.playerId; 
 
-        var player = this.ecsWorld.GetPlayerEntityByID(event.playerId);
+        var player = this.ecsWorld.getPlayerEntityByID(event.playerId);
         if(!player) {
             return;
         }
@@ -326,7 +272,7 @@ export class FightManager extends Component {
         node.destroy();
         player.baseComponent.gameObject = null;
         player.unitComponent.movieClip = null;
-        EntityFactory.SwitchRole(player, roleId);
+        EntityFactory.switchRole(player, roleId);
     }
 
     private OnProcessChangeMapEvent(event): void {
@@ -349,36 +295,31 @@ export class FightManager extends Component {
     }
     
     private OnProcessNavEvent(event): void {
-        // 调用寻路了
         var pos = event.pos;
         var playerId = event.playerId;
         
-        var entity = this.ecsWorld.GetPlayerEntityByID(playerId);
+        var entity = this.ecsWorld.getPlayerEntityByID(playerId);
         if(!entity) {
             return;
         }
         
         entity.roleComponent.controlMode = ControlMode.touch;
-        // console.log(entity);
         var roadNodeArr:RoadNode[] = PathFindingAgent.instance.seekPath2(entity.transformComponent.pos.x, entity.transformComponent.pos.y, pos.x, pos.y);
-        // console.log(roadNodeArr);
         if(roadNodeArr.length < 2) {
             return;
         }
 
-        AttackSystem.StopAttackAction(entity.attackComponent, entity.unitComponent, entity.baseComponent);
-        NavSystem.StartNavTouchAction(roadNodeArr, entity.navComponent, entity.unitComponent);
-       
+        AttackSystem.stopAttackAction(entity.attackComponent, entity.unitComponent, entity.baseComponent);
+        NavSystem.startNavTouchAction(roadNodeArr, entity.navComponent, entity.unitComponent);
     }
 
     private DeleteOtherEntity(entityId: number): void {
-        this.ecsWorld.DestroyPlayerEntityInWorld(entityId);
+        this.ecsWorld.destroyPlayerEntityInWorld(entityId);
     }
 
     public ClearFightScene(): void {
         this.gameCamrea.BindTarget(null);
-        // 删除当前场景的所有物体
-        this.ecsWorld.DestroyWorld();
+        this.ecsWorld.destroyWorld();
         this.selfPlayerEntity = null;
     }
 
@@ -386,9 +327,7 @@ export class FightManager extends Component {
         if(this.mapId == mapId) {
             return;
         }
-        // 删除当前场景的所有物体
         this.ClearFightScene();
-        // end
         console.log(mapId, spawnId);
         this.LoadAndGotoMap(mapId, spawnId);
     }
@@ -396,8 +335,6 @@ export class FightManager extends Component {
     private OnProcessTransferEvent(event): void {
         var mapId = event.mapId;
         var spawnId = event.spawnId;
-        
-       
         if(this.selfPlayerEntity !== null) { // 先判断以下是不是自己这个玩家，如果是
             if(this.selfPlayerEntity.baseComponent.entityID === event.playerId) {
                 this.SelfTransferMap(mapId, spawnId);
@@ -452,45 +389,30 @@ export class FightManager extends Component {
     }
     
     private async InitGameMap(mapData: any, enterSpawnId: number, bgTex: Texture2D, mapLoadModel:MapLoadModel = MapLoadModel.single) {
-        // 地图参数;
         this.mapData = mapData;
         this.mapParams = this.GetMapParams(mapData, bgTex, mapLoadModel);
 
         var width = (DeviceParams.winSize.width < this.mapParams.viewWidth) ? DeviceParams.winSize.width : this.mapParams.viewWidth;
         var height = (DeviceParams.winSize.height < this.mapParams.viewHeight) ? DeviceParams.winSize.height : this.mapParams.viewHeight;
         this.mapRoot.setPosition(v3(-width * 0.5, -height * 0.5, 0));
-        // end
 
-        // 架设好我们的摄像机, 架设到物体出生的地方
-        this.gameCamrea.ResetCamera(enterSpawnId, this.mapRoot, this.mapParams, this.mapData);
-        // end
+        this.gameCamrea.resetCamera(enterSpawnId, this.mapRoot, this.mapParams, this.mapData);
 
-        // 实例化地图节点出来
         var gameMapPrefab = ResManager.Instance.TryGetAsset(BundleName.Map, "GameMap");
         var gameMap = instantiate(gameMapPrefab) as unknown as Node;
         this.mapRoot.addChild(gameMap); // Entiry世界
         gameMap.setPosition(Vec3.ZERO);
-        // end
-
-        // 更换我们的地图的背景图片
         gameMap.addComponent(MapViewLoader).Init(this.mapParams);
-        // end
 
-        // 地图物体上的显示
-        this.ecsWorld = gameMap.addComponent(ECSWorld);
-        await this.ecsWorld.Init(this.mapParams, this.mapData);
-        // end
+        this.ecsWorld = gameMap.addComponent(ECSManager);
+        await this.ecsWorld.init(this.mapParams, this.mapData);
     }
 
     public async LoadAndGotoMap(mapId: string, enterSpawnId: number, mapLoadModel:MapLoadModel = MapLoadModel.single) {
         this.isLoading = true;
         this.mapId = mapId;
 
-        // 加载我们的游戏地图数据
-        console.log("######: " + mapId, typeof(mapId));
         var jsonAsset: any = await ResManager.Instance.IE_GetAsset(BundleName.MapData, mapId, JsonAsset);
-        console.log("end ###### " + mapId);
-        // end
 
         PathLog.setLogEnable(false); //关闭寻路日志打印信息
         //PathLog.setLogEnable(true); //打开寻路日志打印信息     备注： 想看寻路日志信息，执行这行
@@ -519,24 +441,15 @@ export class FightManager extends Component {
         });*/
         //-----------------------------------------------------------------------------------------------------------------------
 
-        // 加载我们的游戏地图的背景
         var bgTex = await ResManager.Instance.IE_GetAsset(BundleName.MapBg, mapId + "/texture", Texture2D);
-        // end
 
-        // 加载我们的游戏地图预制体
         await ResManager.Instance.IE_GetAsset(BundleName.Map, "GameMap", Prefab);
-        // end
 
-        // 地图的显示
         await this.InitGameMap(jsonAsset.json, enterSpawnId, bgTex as Texture2D, mapLoadModel);
-        // end 
 
-        // 测试代码, 把游戏主角创建出来, 网络里面传过来一个玩家，然后你判断以下，这个playerId 是不是我们的 自己的这个id;
         var config = {selectRoleId: 1, controlType: 1, controlMode: 0, playerType: 1, enterSpawnId: enterSpawnId, state: UnitState.idle, direction: 0 };
-        this.selfPlayerEntity = await this.ecsWorld.OnPlayerEnterWorld(config);
-        // end
+        this.selfPlayerEntity = await this.ecsWorld.onPlayerEnterWorld(config);
 
-        // 调整我们的摄像机的位置
         if(DeviceParams.winSize.width < this.mapParams.mapWidth || DeviceParams.winSize.height < this.mapParams.mapHeight) {
             this.gameCamrea.BindTarget(this.selfPlayerEntity);
         }
@@ -544,7 +457,6 @@ export class FightManager extends Component {
             this.gameCamrea.BindTarget(null);
             this.gameCamrea.node.setPosition(v3(0, 0, 1000));
         }
-        // end
 
         this.isLoading = false;
     }

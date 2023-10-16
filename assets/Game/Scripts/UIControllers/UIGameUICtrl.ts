@@ -8,7 +8,6 @@ import { ControlMode } from '../World/Components/RoleComponent';
 
 @ccclass('UIGameUICtrl')
 export class UIGameUICtrl extends UIComponent {
-    
     private joystick: Node = null;
     private stick: Node = null;
 
@@ -37,38 +36,26 @@ export class UIGameUICtrl extends UIComponent {
         this.uiTransform = this.node.getComponent(UITransform);
 
         this.OnCloseEquipShop();
-        // console.log(this.node);
-
         // 摇杆的事件
         node.on(Node.EventType.TOUCH_START, this.onTouchStartEvent,this);
         node.on(Node.EventType.TOUCH_MOVE, this.onTouchMoveEvent,this);
         node.on(Node.EventType.TOUCH_END, this.onTouchEndEvent,this);
         node.on(Node.EventType.TOUCH_CANCEL, this.onTouchEndEvent,this);
-        // end
-
         // Topbar按钮响应
         this.AddButtonListener("UILayer/TopToolbar/ControllBtn", this, this.OnChangeControlType);
         this.AddButtonListener("UILayer/TopToolbar/SwBtn", this, this.OnSwitchRole);
         this.AddButtonListener("UILayer/TopToolbar/LoginBtn", this, this.OnLoginOut);
-        // end
-
         // 攻击按钮的响应
         this.AddButtonListener("UILayer/90001", this, this.OnAttackTypeClick);
         this.AddButtonListener("UILayer/90002", this, this.OnAttackTypeClick);
-        // end
-
         // 地图切换按钮响应
         this.AddButtonListener("UILayer/MapBar/Content/MapItem1", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem2", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem3", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem4", this, this.OnUIGotoMap);
         this.AddButtonListener("UILayer/MapBar/Content/MapItem5", this, this.OnUIGotoMap);
-        // end
-
         // 功能按钮响应
         this.AddButtonListener("UILayer/EquipShopView/Title/CloseTxt", this, this.OnCloseEquipShop);
-        // end
-
         EventManager.Instance.AddEventListener(UIGameEvent.UIOpenEquipShop, this.OnOpenEquipShop, this);
     }
 
@@ -78,16 +65,12 @@ export class UIGameUICtrl extends UIComponent {
 
     private OnAttackTypeClick(target: Button): void {
         var AttackId: number = Number(target.node.name);
-        // console.log(AttackId, target.node.name);
         EventManager.Instance.Emit(UIGameEvent.UIAttack, AttackId);
     }
 
     private OnOpenEquipShop(): void {
-        // 重新的new 界面
         var equipShop = this.ViewNode("UILayer/EquipShopView");
         equipShop.active = true;
-        // end
-
     }
 
     private OnCloseEquipShop(): void {
@@ -109,7 +92,6 @@ export class UIGameUICtrl extends UIComponent {
             return;
         }
 
-        // 摇杆的代码,决定搞一个摇杆的方向
         this.endPos = event.getUILocation();
         var dir = v2();
         Vec2.subtract(dir, this.endPos, this.startPos);
@@ -117,10 +99,8 @@ export class UIGameUICtrl extends UIComponent {
         len = (len > this.maxR) ? this.maxR : len;
         dir = dir.normalize(); // dir.x = cos(r), dir.y = sin(r)
         EventManager.Instance.Emit(UIGameEvent.UIJoystick, dir);
-        // end
 
         this.stick.setPosition(v3(len * dir.x, len * dir.y, 0));
-
     }
 
     private onTouchEndEvent(event: EventTouch): void {
@@ -128,10 +108,8 @@ export class UIGameUICtrl extends UIComponent {
             return;
         }
 
-        // 摇杆的代码,决定搞一个摇杆的方向, 传递摇杆的方向为0， 0
         var dir = v2(0, 0);
         EventManager.Instance.Emit(UIGameEvent.UIJoystick, dir);
-        // end
         this.joystick.active = false; 
     }
 
