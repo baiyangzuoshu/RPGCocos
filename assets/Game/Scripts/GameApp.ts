@@ -22,7 +22,7 @@ export class GameApp extends Component {
         
     }
 
-    public async EnterGame() {
+    public async enterGame() {
         await GameDataManager.Instance.Init();
 
         this.node.addComponent(GameController).Init();

@@ -18,7 +18,18 @@ export class GameCamera extends Component {
         if(!mapItems) {
             return;
         }
-
+        /*
+            ------------------------------------------------------(w,h)
+            |                                                    |
+            |                                                    |           
+            |                                                    |
+            |-------------------                                 |
+            |                  |                                 |
+            |                  |                                 |
+            |                  |                                 |
+            |(0,0)             |                                 |
+            ------------------------------------------------------
+        */
         // 计算以下我们的运动的范围
         var wPos = mapRoot.getComponent(UITransform).convertToWorldSpaceAR(v3(0, 0, 0))
         this.xmin = wPos.x + mapParams.viewWidth * 0.5;

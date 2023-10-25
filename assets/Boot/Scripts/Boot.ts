@@ -94,7 +94,7 @@ export class Boot extends Component {
         
         // 进入游戏
         this.node.addComponent(GameApp).Init();
-        GameApp.Instance.EnterGame();
+        GameApp.Instance.enterGame();
         // end
     }
 }
